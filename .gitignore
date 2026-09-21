@@ -1,0 +1,55 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# Data directories
+data/raw/
+data/chroma/
+data/metadata.db
+data/metadata.db-shm
+data/metadata.db-wal
+data/bm25/
+
+# 运行时数据产物（可由 crawl.py / parse.py 重新生成）
+data/crawl_*.json
+data/parsed_docs*.json
+
+# 虚拟环境（本项目自带 conda 环境，约 2.4GB）
+conda_env/
+
+# 本地模型（体积大，不纳入版本管理）
+models/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+
+# Logs
+*.log
+logs/
+
+# Scrapy
+.scrapy/
+
+# Model cache
+models_cache/
+
+# 杂项
+*.lnk

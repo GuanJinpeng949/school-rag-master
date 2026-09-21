@@ -1,0 +1,2556 @@
+我会先把项目按“数据进入、索引构建、检索生成、接口前端、测试验证”五条链路拆开，再给你一条适合零基础重构的学习和实施顺序。重点会放在每一步你需要亲自写什么、验证什么，以及面试官可能追问什么。
+        
+            
+toolName: no_need_execute
+            
+status: no_need_execute
+          
+          
+我会进行只读、并行检索：先确认项目结构、依赖与启动文件，再沿着爬虫到向量库、RAG 到接口、前端到后端的链路追踪，最后核对配置、数据、测试及 README。整个过程不会写入或修改任何文件。
+        
+            
+toolName: view_folder
+            
+status: success
+          
+g:\code\school-rag-master
+          
+
+        
+            
+toolName: file_search
+            
+status: success
+          
+file_pattern: **/*
+          
+
+        
+            
+toolName: search_by_regex
+            
+status: success
+          
+query: FastAPI|APIRouter|uvicorn|@app\.|@router\.
+          
+
+        
+            
+toolName: search_by_regex
+            
+status: success
+          
+query: 爬虫|crawl|scrap|spider|分块|chunk|embedding|Embedding|向量|Chroma|FAISS|Milvus|Qdrant|检索|retriev|prompt|Prompt|LLM|langchain
+          
+
+        
+            
+toolName: search_codebase
+            
+status: success
+          
+query: 请定位项目中从网页或文档抓取开始，经过解析、文本分块、Embedding，到写入向量数据库的完整实现、入口函数和调用关系。
+          
+
+        
+            
+toolName: search_codebase
+            
+status: success
+          
+query: 请定位项目中 RAG 检索、Prompt 构造、LLM 调用和生成回答的完整数据流，包括被 FastAPI 调用的入口。
+          
+项目的主干已经明确：数据构建由脚本显式串联，在线问答由 `RAGChain` 串联；同时代码中还有一条 BM25/重排支路。接下来我会读取各入口的完整关键实现和实际路径配置，重点核对 README 中“声明了什么”与代码“真正执行了什么”。
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\crawler\spider.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\scripts\crawl.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\scripts\parse.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\router.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\base.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\html_parser.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\config\settings.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\config\sites.yaml
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\.env.example
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\requirements.txt
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\scripts\index_all.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\chunker.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\embedder.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\vector_store.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\bm25_search.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\reranker.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\indexer\metadata_store.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\rag\retriever.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\rag\generator.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\rag\prompts.py
+          
+一个关键实现差异已经出现：`config.settings` 中定义了检索策略开关，但 `Retriever` 构造函数自身有另一套默认值，是否生效取决于依赖注入代码。另一个重点是 `index_all.py` 只显式构建 Chroma 与 SQLite，BM25 实际是在首次在线检索时从 Chroma 懒构建，而不是在离线索引脚本中构建。
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\api\dependencies.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\api\main.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\api\routes\search.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\api\routes\system.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\api\schemas.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\src\api\index.ts
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\src\api\types.ts
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\src\App.vue
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\src\components\SearchBox.vue
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\vite.config.ts
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\frontend\package.json
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\README.md
+          
+在线链路和前端协议已核对完成。现在补齐两类容易影响重构判断的证据：各格式解析器是否真的支持 README 所列能力、`RAGChain` 的流式/纯检索方法是否与路由一致，以及当前工作区实际是否存在 README 所说的构建产物和运行时目录。仍保持只读。
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\rag\chain.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\pdf_parser.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\image_parser.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\parser\table_parser.py
+          
+
+        
+            
+toolName: view_files
+            
+status: success
+          
+            
+filePath: g:\code\school-rag-master\scripts\integration_test.py
+          
+
+        
+            
+toolName: view_folder
+            
+status: success
+          
+g:\code\school-rag-master\data
+          
+
+        
+            
+toolName: view_folder
+            
+status: success
+          
+g:\code\school-rag-master\frontend
+          
+
+        
+            
+toolName: search_by_regex
+            
+status: success
+          
+query: parse\.py|crawl_full|parsed_docs|BM25|build_index|generate_stream|search_only|Scrapy|Playwright|js_render|SUMMARY_PROMPT
+          
+已完成项目的只读调研，未修改任何文件。下面按“数据构建链路、在线 RAG 链路、接口与前端、配置与测试、README 差异”整理，路径均为绝对路径，并附关键符号和行号，便于后续重构或面试准备。
+
+**一、项目整体结构**
+
+项目主要分为五条职责链：
+
+```text
+爬虫：
+sites.yaml
+  -> SchoolCrawler
+  -> data/raw/{html,pdf,images,doc,...}
+  -> crawl_*.json
+
+解析：
+crawl_*.json
+  -> ParserRouter
+  -> HTML/PDF/Image/Table Parser
+  -> ParsedDocument
+  -> data/parsed_docs.json
+
+离线索引：
+ParsedDocument
+  -> TextChunker
+  -> Embedder
+  -> Chroma VectorStore
+  -> SQLite MetadataStore
+
+在线 RAG：
+用户问题
+  -> Retriever
+  -> 向量检索 + BM25 + RRF + Reranker
+  -> Generator
+  -> Prompt
+  -> DeepSeek/OpenAI
+  -> RAGResponse
+
+Web 服务：
+Vue 前端
+  -> FastAPI
+  -> RAGChain
+  -> RAGResponse/SSE
+```
+
+主要目录：
+
+- 爬虫：[crawler/spider.py](g:/code/school-rag-master/crawler/spider.py)
+- 解析器：[parser/](g:/code/school-rag-master/parser)
+- 索引器：[indexer/](g:/code/school-rag-master/indexer)
+- RAG：[rag/](g:/code/school-rag-master/rag)
+- FastAPI：[api/](g:/code/school-rag-master/api)
+- 前端：[frontend/src/](g:/code/school-rag-master/frontend/src)
+- 运维脚本：[scripts/](g:/code/school-rag-master/scripts)
+- 配置：[config/](g:/code/school-rag-master/config)
+- 数据：[data/](g:/code/school-rag-master/data)
+
+**二、爬虫、解析、分块、Embedding、向量库**
+
+**1. 爬虫入口**
+
+命令行入口是：
+
+```text
+python scripts/crawl.py
+```
+
+对应文件：[scripts/crawl.py](g:/code/school-rag-master/scripts/crawl.py:86)
+
+关键调用关系：
+
+```text
+scripts/crawl.py:main
+  -> crawler.spider.run_crawl
+  -> load_sites_config
+  -> SchoolCrawler(site)
+  -> SchoolCrawler.crawl
+```
+
+关键位置：
+
+- [scripts/crawl.py:86-115](g:/code/school-rag-master/scripts/crawl.py:86)
+  - 解析 `--max-pages`、`--sites`、`--output`
+  - 调用 `run_crawl`
+  - 将结果序列化为 JSON
+- [crawler/spider.py:646-705](g:/code/school-rag-master/crawler/spider.py:646)
+  - `load_sites_config()` 从 `config/sites.yaml` 加载站点
+  - `run_crawl()` 为每个站点创建 `SchoolCrawler`
+- [crawler/spider.py:557-643](g:/code/school-rag-master/crawler/spider.py:557)
+  - `SchoolCrawler.crawl()` 是实际爬取循环
+  - 维护 `visited_urls` 和 `queue`
+  - 根据 URL 类型决定抓 HTML 还是下载文件
+- [crawler/spider.py:444-518](g:/code/school-rag-master/crawler/spider.py:444)
+  - `_parse_html()` 下载并保存 HTML
+  - 提取标题、正文、链接、附件、发布日期等元数据
+- [crawler/spider.py:520-555](g:/code/school-rag-master/crawler/spider.py:520)
+  - `_download_file()` 下载 PDF、图片、Office 文件
+
+爬虫实际使用的是：
+
+- `requests`
+- `BeautifulSoup`
+- `lxml`
+
+位置：[crawler/spider.py:20-24](g:/code/school-rag-master/crawler/spider.py:20)
+
+而不是 Scrapy 的 Spider，也没有在该实现中实际调用 Playwright。
+
+文件保存目录由 `RAW_DATA_DIR` 决定，默认是：
+
+```text
+data/raw/
+  html/
+  pdf/
+  images/
+  doc/
+  other/
+```
+
+位置：
+
+- [config/settings.py:10-14](g:/code/school-rag-master/config/settings.py:10)
+- [crawler/spider.py:85-88](g:/code/school-rag-master/crawler/spider.py:85)
+
+**2. 解析入口**
+
+命令行解析入口是：
+
+```text
+python scripts/parse.py
+```
+
+对应文件：[scripts/parse.py](g:/code/school-rag-master/scripts/parse.py:13)
+
+关键调用关系：
+
+```text
+scripts/parse.py:main
+  -> ParserRouter()
+  -> ParserRouter.parse_crawl_results
+  -> ParserRouter.parse_file
+  -> 根据文件类型选择具体 Parser
+  -> ParsedDocument
+  -> data/parsed_docs.json
+```
+
+关键位置：
+
+- [scripts/parse.py:13-21](g:/code/school-rag-master/scripts/parse.py:13)
+  - 默认输入：`data/crawl_full.json`
+  - 默认输出：`data/parsed_docs.json`
+- [scripts/parse.py:29-37](g:/code/school-rag-master/scripts/parse.py:29)
+  - 初始化 `ParserRouter`
+  - 默认只解析详情页
+- [scripts/parse.py:74-79](g:/code/school-rag-master/scripts/parse.py:74)
+  - 将 `ParsedDocument.to_dict()` 写入 JSON
+
+统一的数据模型是：
+
+[parser/base.py:19-70](g:/code/school-rag-master/parser/base.py:19)
+
+```text
+ParsedDocument
+  - doc_id
+  - text
+  - source_url
+  - source_site
+  - title
+  - content_type
+  - publish_date
+  - author
+  - file_path
+  - file_hash
+  - attachments
+  - extra
+```
+
+这是解析层交给索引层的核心接口。
+
+解析路由器：
+
+[parser/router.py:27-44](g:/code/school-rag-master/parser/router.py:27)
+
+注册了：
+
+- `HTMLParser`
+- `PDFParser`
+- `ImageParser`
+- `TableParser`
+
+批量处理入口：
+
+[parser/router.py:105-176](g:/code/school-rag-master/parser/router.py:105)
+
+主要逻辑：
+
+1. 读取爬虫结果 JSON。
+2. 默认跳过非详情页。
+3. 跳过爬取失败的条目。
+4. 检查 `file_path` 是否存在。
+5. 根据文件路径识别内容类型。
+6. 调用具体解析器。
+7. 合并为 `ParsedDocument` 列表。
+
+**3. 具体解析器**
+
+HTML：
+
+[parser/html_parser.py:25-157](g:/code/school-rag-master/parser/html_parser.py:25)
+
+主要能力：
+
+- 高校 CMS 常见正文容器选择器
+- 标题、日期、作者、附件提取
+- 删除脚本、导航、页脚等噪声
+- HTML 表格转 Markdown
+- `readability-lxml` 兜底
+
+正文入口：
+
+- [parser/html_parser.py:97-157](g:/code/school-rag-master/parser/html_parser.py:97)
+- `_extract_body()`：[parser/html_parser.py:263-276](g:/code/school-rag-master/parser/html_parser.py:263)
+
+PDF：
+
+[parser/pdf_parser.py:23-88](g:/code/school-rag-master/parser/pdf_parser.py:23)
+
+实际使用：
+
+- PyMuPDF / `fitz` 提取文本
+- `pdfplumber` 提取表格
+- PaddleOCR 处理扫描 PDF
+- 最终通常生成一个完整的 `ParsedDocument`
+
+关键位置：
+
+- 文本提取：[parser/pdf_parser.py:101-125](g:/code/school-rag-master/parser/pdf_parser.py:101)
+- 表格提取：[parser/pdf_parser.py:127-180](g:/code/school-rag-master/parser/pdf_parser.py:127)
+- OCR 兜底：[parser/pdf_parser.py:182-230](g:/code/school-rag-master/parser/pdf_parser.py:182)
+
+图片：
+
+[parser/image_parser.py:21-74](g:/code/school-rag-master/parser/image_parser.py:21)
+
+使用 PaddleOCR 将图片转换为文本。
+
+表格：
+
+[parser/table_parser.py:22-74](g:/code/school-rag-master/parser/table_parser.py:22)
+
+该解析器专门声明支持 `ContentType.TABLE`，但当前 `ParserRouter.detect_content_type()` 主要根据扩展名和父目录判断：
+
+[parser/router.py:46-80](g:/code/school-rag-master/parser/router.py:46)
+
+因此需要注意：
+
+- PDF 文件默认会被路由给 `PDFParser`
+- `TableParser` 虽然注册了，但没有明显的独立文件类型入口
+- PDF 内表格实际上已经由 `PDFParser` 内部处理
+- `TableParser` 可能属于备用或未完全接入的实现
+
+Office 文件虽然爬虫可以下载，但 `ParserRouter` 中没有对应的 DOC/DOCX/XLS/XLSX 解析器，且 `parse_all_raw_files()` 的支持扩展名也只覆盖 HTML、PDF、图片：
+
+[parser/router.py:178-209](g:/code/school-rag-master/parser/router.py:178)
+
+**4. 分块入口**
+
+离线索引入口：
+
+[scripts/index_all.py:61-75](g:/code/school-rag-master/scripts/index_all.py:61)
+
+处理关系：
+
+```text
+ParsedDocument
+  -> TextChunker.chunk_documents
+  -> Chunk
+```
+
+分块器：
+
+[indexer/chunker.py:69-94](g:/code/school-rag-master/indexer/chunker.py:69)
+
+默认参数来自 `scripts/index_all.py`：
+
+```text
+chunk_size = 1024
+chunk_overlap = 120
+doc_keep_size = 2048
+```
+
+默认策略：
+
+- 文档长度不超过 2048 字符：整篇作为一个 chunk
+- 长文档：使用 LangChain `RecursiveCharacterTextSplitter`
+- 分隔符优先级：
+  - 空行
+  - 换行
+  - 句号
+  - 分号
+  - 感叹号
+  - 问号
+  - 逗号
+  - 空格
+- 每个 chunk 继承原文档的 URL、标题、站点等元数据
+
+关键位置：
+
+- 单文档分块：[indexer/chunker.py:96-156](g:/code/school-rag-master/indexer/chunker.py:96)
+- 批量分块：[indexer/chunker.py:158-178](g:/code/school-rag-master/indexer/chunker.py:158)
+- 创建 chunk：[indexer/chunker.py:180-217](g:/code/school-rag-master/indexer/chunker.py:180)
+
+长文档 chunk 会在开头补充标题：
+
+```text
+标题：文档标题
+正文片段
+```
+
+位置：[indexer/chunker.py:191-200](g:/code/school-rag-master/indexer/chunker.py:191)
+
+**5. Embedding 入口**
+
+嵌入器：
+
+[indexer/embedder.py:22-48](g:/code/school-rag-master/indexer/embedder.py:22)
+
+默认配置：
+
+```text
+provider = bge-local
+model = BAAI/bge-large-zh-v1.5
+dimension = 1024
+```
+
+配置位置：
+
+[config/settings.py:49-57](g:/code/school-rag-master/config/settings.py:49)
+
+离线索引中的实际调用：
+
+[scripts/index_all.py:118-131](g:/code/school-rag-master/scripts/index_all.py:118)
+
+```text
+chunks
+  -> texts = [c.text for c in chunks]
+  -> embedder.embed_texts(batch)
+  -> all_embeddings
+```
+
+查询时的调用：
+
+- [rag/retriever.py:327-332](g:/code/school-rag-master/rag/retriever.py:327)
+- [rag/retriever.py:372-377](g:/code/school-rag-master/rag/retriever.py:372)
+
+查询会增加 BGE 推荐的检索前缀：
+
+```text
+为这个句子生成表示以用于检索相关文章：
+```
+
+模型是懒加载的：
+
+[indexer/embedder.py:50-88](g:/code/school-rag-master/indexer/embedder.py:50)
+
+备选 provider 是 OpenAI Embedding，但当前 `requirements.txt` 没有显式列出 `openai` 包，代码在运行时导入：
+
+[indexer/embedder.py:141-165](g:/code/school-rag-master/indexer/embedder.py:141)
+
+**6. 向量库和元数据入口**
+
+Chroma 向量库：
+
+[indexer/vector_store.py:32-68](g:/code/school-rag-master/indexer/vector_store.py:32)
+
+默认：
+
+```text
+持久化目录：data/chroma
+集合名：school_rag
+距离：cosine
+```
+
+写入入口：
+
+[indexer/vector_store.py:70-121](g:/code/school-rag-master/indexer/vector_store.py:70)
+
+在线检索入口：
+
+[indexer/vector_store.py:123-170](g:/code/school-rag-master/indexer/vector_store.py:123)
+
+离线索引中的调用：
+
+[scripts/index_all.py:133-136](g:/code/school-rag-master/scripts/index_all.py:133)
+
+```text
+vector_store.add_chunks(chunks, all_embeddings)
+```
+
+SQLite 元数据：
+
+[indexer/metadata_store.py:25-87](g:/code/school-rag-master/indexer/metadata_store.py:25)
+
+默认路径：
+
+```text
+data/metadata.db
+```
+
+配置位置：[config/settings.py:109-119](g:/code/school-rag-master/config/settings.py:109)
+
+写入调用：
+
+- 文档元数据：[scripts/index_all.py:142-160](g:/code/school-rag-master/scripts/index_all.py:142)
+- 分块记录：[scripts/index_all.py:162-164](g:/code/school-rag-master/scripts/index_all.py:162)
+
+需要理解两者职责：
+
+```text
+Chroma：
+  存储 embedding、原始 chunk 文本、检索元数据
+  负责相似度检索
+
+SQLite：
+  存储文档和 chunk 的结构化记录
+  负责统计、审计、文档状态和元数据查询
+```
+
+**三、RAG 检索、Prompt、LLM 生成数据流**
+
+**1. RAGChain 统一入口**
+
+核心类：
+
+[rag/chain.py:51-75](g:/code/school-rag-master/rag/chain.py:51)
+
+初始化：
+
+```text
+RAGChain
+  -> Retriever
+  -> Generator
+```
+
+完整问答入口：
+
+[rag/chain.py:77-117](g:/code/school-rag-master/rag/chain.py:77)
+
+调用链：
+
+```text
+RAGChain.ask
+  -> Retriever.retrieve
+  -> Generator.generate
+  -> RAGResponse
+```
+
+纯检索入口：
+
+[rag/chain.py:150-162](g:/code/school-rag-master/rag/chain.py:150)
+
+流式生成入口：
+
+[rag/chain.py:164-182](g:/code/school-rag-master/rag/chain.py:164)
+
+`RAGChain.ask()` 当前始终执行生成器；API 层通过 `search_only()` 实现 `use_llm=false`。
+
+**2. Retriever 检索流程**
+
+检索器定义：
+
+[rag/retriever.py:70-117](g:/code/school-rag-master/rag/retriever.py:70)
+
+默认组件：
+
+- `Embedder`
+- `VectorStore`
+- `BM25Search`
+- `Reranker`
+
+完整检索流程：
+
+[rag/retriever.py:264-325](g:/code/school-rag-master/rag/retriever.py:264)
+
+```text
+Retriever.retrieve
+  -> 构建 source_site/content_type 过滤条件
+  -> 查询改写/查询分解
+  -> 对每个子查询执行向量或混合检索
+  -> chunk 去重
+  -> 按文档去重
+  -> 截取 top_k
+```
+
+查询预处理：
+
+[rag/retriever.py:119-167](g:/code/school-rag-master/rag/retriever.py:119)
+
+包括：
+
+- 查询改写
+- 复杂查询分解
+- 保留原始查询作为兜底
+- 最多保留 4 个查询
+
+不过当前默认配置是：
+
+[config/settings.py:99-102](g:/code/school-rag-master/config/settings.py:99)
+
+```text
+USE_QUERY_REWRITE=false
+USE_QUERY_DECOMPOSE=false
+```
+
+FastAPI 依赖注入会把这两个配置传给 Retriever：
+
+[api/dependencies.py:28-45](g:/code/school-rag-master/api/dependencies.py:28)
+
+因此线上默认不会执行查询改写和查询分解。
+
+**3. 混合检索流程**
+
+当 `HYBRID_SEARCH=true` 时，调用：
+
+[rag/retriever.py:372-464](g:/code/school-rag-master/rag/retriever.py:372)
+
+实际流程：
+
+```text
+查询
+  -> BGE 查询向量
+  -> Chroma 向量检索
+  -> BM25 关键词检索
+  -> RRF 融合
+  -> 阈值过滤
+  -> Cross-Encoder 重排
+  -> SearchResult
+```
+
+向量检索：
+
+[rag/retriever.py:327-370](g:/code/school-rag-master/rag/retriever.py:327)
+
+BM25：
+
+- 实现：[indexer/bm25_search.py](g:/code/school-rag-master/indexer/bm25_search.py)
+- 确保索引存在：[rag/retriever.py:249-262](g:/code/school-rag-master/rag/retriever.py:249)
+- 实际检索：[rag/retriever.py:387-393](g:/code/school-rag-master/rag/retriever.py:387)
+
+重要事实：
+
+- `scripts/index_all.py` 没有显式调用 `BM25Search.build_index()`
+- BM25 第一次在线检索时才尝试从磁盘加载
+- 如果索引文件不存在，则从 Chroma 全量构建
+- BM25 索引文件默认是 `data/bm25/bm25_index.pkl`
+
+RRF 融合：
+
+[rag/retriever.py:466-532](g:/code/school-rag-master/rag/retriever.py:466)
+
+公式：
+
+```text
+1 / (rrf_k + 向量排名)
++
+1 / (rrf_k + BM25排名)
+```
+
+重排序：
+
+[indexer/reranker.py:67-134](g:/code/school-rag-master/indexer/reranker.py:67)
+
+默认模型：
+
+```text
+BAAI/bge-reranker-v2-m3
+```
+
+配置位置：[config/settings.py:86-94](g:/code/school-rag-master/config/settings.py:86)
+
+文档去重：
+
+[rag/retriever.py:534-558](g:/code/school-rag-master/rag/retriever.py:534)
+
+默认每个文档最多保留 2 个 chunk。
+
+**4. Prompt 构造**
+
+Prompt 定义：
+
+[rag/prompts.py](g:/code/school-rag-master/rag/prompts.py)
+
+核心模板：
+
+- 系统提示：[rag/prompts.py:10-16](g:/code/school-rag-master/rag/prompts.py:10)
+- 问答模板：[rag/prompts.py:18-25](g:/code/school-rag-master/rag/prompts.py:18)
+- 无结果模板：[rag/prompts.py:27-37](g:/code/school-rag-master/rag/prompts.py:27)
+- 查询改写模板：[rag/prompts.py:39-44](g:/code/school-rag-master/rag/prompts.py:39)
+- 查询分解模板：[rag/prompts.py:46-52](g:/code/school-rag-master/rag/prompts.py:46)
+
+生成器先把检索结果拼接为上下文：
+
+[rag/generator.py:172-195](g:/code/school-rag-master/rag/generator.py:172)
+
+每个检索结果最多取 800 字符：
+
+[rag/generator.py:18-21](g:/code/school-rag-master/rag/generator.py:18)
+
+上下文大致包含：
+
+```text
+文档序号
+来源站点
+标题
+来源 URL
+正文片段
+```
+
+之后使用：
+
+[rag/generator.py:110-117](g:/code/school-rag-master/rag/generator.py:110)
+
+```text
+QA_PROMPT_TEMPLATE.format(
+    context=context,
+    question=query
+)
+```
+
+**5. LLM 调用**
+
+LLM 入口：
+
+[rag/generator.py:24-79](g:/code/school-rag-master/rag/generator.py:24)
+
+provider 自动选择逻辑：
+
+- 有 `DEEPSEEK_API_KEY`：使用 DeepSeek
+- 否则有 `OPENAI_API_KEY`：使用 OpenAI
+- 都没有：默认仍选择 DeepSeek，实际调用时会失败
+
+调用逻辑：
+
+[rag/generator.py:119-159](g:/code/school-rag-master/rag/generator.py:119)
+
+```text
+Generator.generate
+  -> _get_llm
+  -> SystemMessage(SYSTEM_PROMPT)
+  -> HumanMessage(QA_PROMPT)
+  -> llm.invoke
+  -> answer
+```
+
+无检索结果时不调用 LLM：
+
+[rag/generator.py:101-108](g:/code/school-rag-master/rag/generator.py:101)
+
+LLM 失败时会降级为纯检索结果拼接：
+
+[rag/generator.py:150-159](g:/code/school-rag-master/rag/generator.py:150)
+
+流式生成：
+
+- [rag/generator.py:123-128](g:/code/school-rag-master/rag/generator.py:123)
+- [rag/generator.py:161-170](g:/code/school-rag-master/rag/generator.py:161)
+
+**四、FastAPI 接口与前端调用关系**
+
+**1. FastAPI 启动入口**
+
+[api/main.py:45-103](g:/code/school-rag-master/api/main.py:45)
+
+启动方式：
+
+```text
+python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
+
+应用初始化：
+
+```text
+api.main:app
+  -> create_app()
+  -> include search router
+  -> include system router
+  -> 如果 frontend/dist 存在，挂载静态文件和 SPA fallback
+```
+
+关键位置：
+
+- 路由注册：[api/main.py:63-67](g:/code/school-rag-master/api/main.py:63)
+- 前端静态文件：[api/main.py:69-98](g:/code/school-rag-master/api/main.py:69)
+- 生命周期：[api/main.py:24-42](g:/code/school-rag-master/api/main.py:24)
+
+**2. 依赖注入**
+
+[api/dependencies.py:20-78](g:/code/school-rag-master/api/dependencies.py:20)
+
+使用全局懒加载单例：
+
+- `_rag_chain`
+- `_vector_store`
+- `_metadata_store`
+- `_bm25_search`
+- `_reranker`
+
+`get_rag_chain()` 会读取 `settings.retrieval`，再创建 Retriever：
+
+[api/dependencies.py:28-45](g:/code/school-rag-master/api/dependencies.py:28)
+
+这说明配置类中的检索参数确实会影响 API 线上实例。
+
+**3. 普通搜索接口**
+
+接口：
+
+```text
+POST /api/search
+```
+
+实现：[api/routes/search.py:55-109](g:/code/school-rag-master/api/routes/search.py:55)
+
+请求模型：
+
+[api/schemas.py:10-17](g:/code/school-rag-master/api/schemas.py:10)
+
+主要字段：
+
+```text
+query
+top_k
+filter_site
+filter_type
+use_llm
+```
+
+数据流：
+
+```text
+POST /api/search
+  -> SearchRequest
+  -> get_rag_chain
+  -> use_llm=true:
+       asyncio.to_thread(chain.ask)
+       -> Retriever.retrieve
+       -> Generator.generate
+  -> use_llm=false:
+       chain.search_only
+  -> SearchResponse
+```
+
+接口内部使用 256 条的进程内 LRU 风格缓存：
+
+[api/routes/search.py:30-53](g:/code/school-rag-master/api/routes/search.py:30)
+
+缓存只存在当前进程，服务重启会丢失。
+
+**4. 流式搜索接口**
+
+接口：
+
+```text
+POST /api/search/stream
+```
+
+实现：[api/routes/search.py:111-199](g:/code/school-rag-master/api/routes/search.py:111)
+
+SSE 事件顺序：
+
+```text
+meta
+  -> 检索耗时
+  -> 来源
+  -> 检索结果
+
+token
+  -> LLM 输出片段
+
+done
+  -> 生成耗时
+```
+
+关键代码：
+
+- 检索：[api/routes/search.py:129-143](g:/code/school-rag-master/api/routes/search.py:129)
+- 推送 meta：[api/routes/search.py:158-166](g:/code/school-rag-master/api/routes/search.py:158)
+- 流式生成：[api/routes/search.py:168-184](g:/code/school-rag-master/api/routes/search.py:168)
+
+**5. 建议和系统接口**
+
+纯检索建议：
+
+```text
+GET /api/suggest?q=选课&top_k=5
+```
+
+实现：[api/routes/search.py:202-225](g:/code/school-rag-master/api/routes/search.py:202)
+
+系统接口：
+
+- `GET /api/stats`
+- `GET /api/health`
+
+实现：[api/routes/system.py](g:/code/school-rag-master/api/routes/system.py)
+
+其中：
+
+- `/stats` 同时读取 SQLite 和 Chroma
+- `/health` 只检查 Chroma 和 SQLite 是否能访问，并不检查 Embedding 模型、BM25 或 LLM 是否可用
+
+**6. 前端调用关系**
+
+前端搜索入口：
+
+[frontend/src/App.vue:173-240](g:/code/school-rag-master/frontend/src/App.vue:173)
+
+当前页面的搜索行为是：
+
+```text
+用户输入
+  -> SearchBox @search
+  -> App.doSearch
+  -> searchStream
+  -> POST /api/search/stream
+  -> onMeta 展示来源和检索结果
+  -> onToken 累加回答
+  -> onDone 结束加载状态
+```
+
+前端 API 封装：
+
+[frontend/src/api/index.ts](g:/code/school-rag-master/frontend/src/api/index.ts)
+
+流式请求：
+
+[frontend/src/api/index.ts:28-102](g:/code/school-rag-master/frontend/src/api/index.ts:28)
+
+请求地址：
+
+```text
+fetch('/api/search/stream')
+```
+
+开发环境代理：
+
+[frontend/vite.config.ts:4-14](g:/code/school-rag-master/frontend/vite.config.ts:4)
+
+```text
+前端开发服务器：http://localhost:3000
+/api -> http://localhost:8000
+```
+
+前端生产模式依赖：
+
+```text
+frontend/dist
+```
+
+FastAPI 只有在该目录存在时，才会提供前端页面：
+
+[api/main.py:69-98](g:/code/school-rag-master/api/main.py:69)
+
+前端页面默认始终发送：
+
+[frontend/src/App.vue:199-204](g:/code/school-rag-master/frontend/src/App.vue:199)
+
+```text
+use_llm: true
+```
+
+因此当前 UI 默认只走流式 LLM 搜索，不使用普通的 `POST /api/search`。
+
+**五、配置、数据目录、测试脚本**
+
+**1. 配置文件**
+
+全局配置：
+
+[config/settings.py](g:/code/school-rag-master/config/settings.py)
+
+默认目录：
+
+- 项目根目录：[config/settings.py:10-11](g:/code/school-rag-master/config/settings.py:10)
+- 原始数据：[config/settings.py:12-13](g:/code/school-rag-master/config/settings.py:12)
+- Chroma：[config/settings.py:14](g:/code/school-rag-master/config/settings.py:14)
+- SQLite：[config/settings.py:109-119](g:/code/school-rag-master/config/settings.py:109)
+
+环境变量示例：
+
+[.env.example](g:/code/school-rag-master/.env.example)
+
+主要配置分组：
+
+- LLM
+- Embedding
+- Chroma
+- 爬虫
+- SQLite
+- API
+- 日志
+
+站点配置：
+
+[config/sites.yaml](g:/code/school-rag-master/config/sites.yaml)
+
+当前配置了多个中国矿业大学站点，包括：
+
+- 主站
+- 信息公告
+- 矿大新闻
+- 教务部
+- 本科招生网
+- 研究生院
+- 图书馆
+- 学生工作处
+- 信息公开
+- 就业指导中心
+- 规章制度等
+
+**2. 当前仓库中的数据文件**
+
+当前 `data/` 下能看到：
+
+- [data/crawl_full.json](g:/code/school-rag-master/data/crawl_full.json)
+- [data/crawl_main.json](g:/code/school-rag-master/data/crawl_main.json)
+- [data/crawl_jwb_test.json](g:/code/school-rag-master/data/crawl_jwb_test.json)
+- [data/crawl_test.json](g:/code/school-rag-master/data/crawl_test.json)
+- [data/crawl_clean_test.json](g:/code/school-rag-master/data/crawl_clean_test.json)
+- [data/crawl_results_batch2.json](g:/code/school-rag-master/data/crawl_results_batch2.json)
+- [data/crawl_xxgg_detail.json](g:/code/school-rag-master/data/crawl_xxgg_detail.json)
+- [data/crawl_xxgg_detail2.json](g:/code/school-rag-master/data/crawl_xxgg_detail2.json)
+- [data/parsed_docs.json](g:/code/school-rag-master/data/parsed_docs.json)
+
+当前目录列表中没有看到：
+
+- `data/raw/`
+- `data/chroma/`
+- `data/bm25/`
+- `data/metadata.db`
+- `frontend/dist/`
+
+这些目录和文件会在运行时或构建时产生，但当前工作区本身没有显示出来。
+
+**3. 测试脚本**
+
+唯一主要测试脚本：
+
+[scripts/integration_test.py](g:/code/school-rag-master/scripts/integration_test.py)
+
+测试范围：
+
+- 数据层
+- HTML/PDF 解析层
+- Embedding
+- Chroma
+- Retriever
+- RAG
+- HTTP API
+- 前端页面和资源
+- CORS
+- Playwright 浏览器测试
+- 配置检查
+
+主入口：
+
+[scripts/integration_test.py:556-579](g:/code/school-rag-master/scripts/integration_test.py:556)
+
+使用方式：
+
+```text
+python scripts/integration_test.py
+python scripts/integration_test.py --skip-llm --skip-browser
+```
+
+测试具有较强的运行环境依赖：
+
+- 要求存在 `.env`
+- 要求存在数据目录和索引
+- API 测试要求先启动后端
+- 浏览器测试要求 Playwright 浏览器已安装
+- LLM 测试要求 API Key 可用
+- 当前脚本内容中存在旧路径示例 `d:/code/aa-my-idea/school-rag`
+
+**六、README 与实际代码可能不一致之处**
+
+以下是对重构和面试最值得关注的差异。
+
+**1. README 把爬虫描述为 Scrapy + Playwright，但实际是 requests + BeautifulSoup**
+
+README：
+
+[README.md:86-98](g:/code/school-rag-master/README.md:86)
+
+```text
+crawler/ # Scrapy + Playwright 爬虫
+```
+
+技术栈表格：
+
+[README.md:119-132](g:/code/school-rag-master/README.md:119)
+
+```text
+爬虫 | Scrapy + Playwright
+```
+
+实际代码：
+
+- [crawler/spider.py:20-24](g:/code/school-rag-master/crawler/spider.py:20) 使用 `requests`、BeautifulSoup、lxml
+- `js_render` 只在 [crawler/spider.py:64](g:/code/school-rag-master/crawler/spider.py:64) 读取，没有实际渲染逻辑
+- `requirements.txt` 虽然安装了 Scrapy 和 Playwright，但当前爬虫实现未调用它们
+
+**2. README 的数据准备步骤缺少解析命令**
+
+README 只写：
+
+[README.md:37-45](g:/code/school-rag-master/README.md:37)
+
+```text
+python scripts/crawl.py
+python scripts/index_all.py
+```
+
+但 `index_all.py` 默认读取：
+
+[scripts/index_all.py:194-205](g:/code/school-rag-master/scripts/index_all.py:194)
+
+```text
+data/parsed_docs.json
+```
+
+实际完整流程应该是：
+
+```text
+python scripts/crawl.py
+python scripts/parse.py
+python scripts/index_all.py
+```
+
+否则只执行 README 中的两步时，索引脚本无法自动把爬虫结果解析成 `ParsedDocument`。
+
+**3. README 的数据管线省略了 `scripts/parse.py`**
+
+README 架构图写的是：
+
+[README.md:7-13](g:/code/school-rag-master/README.md:7)
+
+```text
+Scrapy爬虫 -> HTML/PDF解析 -> 文本分块 -> BGE嵌入 -> Chroma+SQLite
+```
+
+但项目实际通过独立的 `scripts/parse.py` 完成“爬虫 JSON 到结构化文档”的转换，解析不是由 `index_all.py` 自动触发。
+
+**4. README 说索引包含 BM25，但 `index_all.py` 没有构建 BM25**
+
+README 和模块说明强调：
+
+```text
+向量检索 + BM25
+```
+
+但是：
+
+- [scripts/index_all.py:109-164](g:/code/school-rag-master/scripts/index_all.py:109) 只做分块、Embedding、Chroma、SQLite
+- 没有调用 `BM25Search.build_index()`
+- BM25 在首次在线检索时通过 [rag/retriever.py:249-262](g:/code/school-rag-master/rag/retriever.py:249) 懒构建
+
+因此实际启动后的第一次混合检索可能承担 BM25 全量构建开销。
+
+**5. Retriever 默认值与配置默认值存在差异**
+
+`Retriever.__init__()` 默认：
+
+[rag/retriever.py:73-85](g:/code/school-rag-master/rag/retriever.py:73)
+
+```text
+hybrid=True
+use_reranker=True
+use_query_rewrite=True
+use_query_decompose=True
+```
+
+但配置默认值：
+
+[config/settings.py:80-102](g:/code/school-rag-master/config/settings.py:80)
+
+```text
+HYBRID_SEARCH=true
+USE_RERANKER=true
+USE_QUERY_REWRITE=false
+USE_QUERY_DECOMPOSE=false
+```
+
+结论：
+
+- 通过 `api.dependencies.get_rag_chain()` 创建的 API Retriever 使用配置值
+- 直接 `RAGChain()` 或 `Retriever()` 使用构造函数默认值
+- 测试脚本中的 `RAGChain()` 可能启用查询改写和查询分解，与 API 线上默认行为不完全相同
+
+**6. README 说使用 LangChain RAG，但项目主要是手写串联**
+
+README 技术栈写：
+
+[README.md:121-131](g:/code/school-rag-master/README.md:121)
+
+```text
+RAG框架 | LangChain
+```
+
+实际代码确实使用 LangChain 的部分能力：
+
+- `RecursiveCharacterTextSplitter`
+- `ChatOpenAI`
+- LangChain message 类型
+
+但核心 RAG 流程是自己实现的：
+
+- `Retriever`
+- `RAGChain`
+- `Generator`
+- RRF
+- 去重
+- API 数据流
+
+并没有看到基于 LangChain `RetrievalQA`、LCEL chain 或标准向量检索器的完整封装。因此面试时更准确的表述是：
+
+```text
+使用 LangChain 的组件能力，但 RAG 主流程是项目自定义实现。
+```
+
+**7. README 中的启动路径是其他机器上的路径**
+
+README 中出现：
+
+[README.md:57-60](g:/code/school-rag-master/README.md:57)
+
+```text
+cd d:\code\aa-my-idea\school-rag
+```
+
+当前项目实际路径是：
+
+```text
+g:\code\school-rag-master
+```
+
+这是明显的历史环境残留。
+
+**8. README 访问地址与开发模式描述不够清晰**
+
+README 同时写：
+
+- `http://127.0.0.1:8000`
+- `http://localhost:8000`
+- 前端开发端口实际是 `3000`
+
+实际情况：
+
+- 生产模式：构建 `frontend/dist` 后访问 `8000`
+- 开发模式：前端访问 `3000`，Vite 将 `/api` 代理到 `8000`
+- 后端独立地址：`8000`
+
+对应配置：[frontend/vite.config.ts:6-13](g:/code/school-rag-master/frontend/vite.config.ts:6)
+
+**9. README 声称有 30 项测试全部通过，但当前工作区缺少测试依赖的运行时产物**
+
+README 测试结果：
+
+[README.md:134-145](g:/code/school-rag-master/README.md:134)
+
+声称包括：
+
+- 257 HTML
+- 45 PDF
+- 1240 文档
+- 1928 分块
+- Chroma 1928 块
+- API 和浏览器 E2E 全部通过
+
+但是当前目录中未看到：
+
+- `data/raw`
+- `data/chroma`
+- `data/metadata.db`
+- `frontend/dist`
+
+而测试脚本会显式检查这些路径：
+
+- [scripts/integration_test.py:81-135](g:/code/school-rag-master/scripts/integration_test.py:81)
+- [scripts/integration_test.py:401-415](g:/code/school-rag-master/scripts/integration_test.py:401)
+- [scripts/integration_test.py:539-549](g:/code/school-rag-master/scripts/integration_test.py:539)
+
+所以 README 中的“全部通过”更像历史运行结果，不代表当前工作区可以直接复现。
+
+**10. 前端 TypeScript 类型存在不一致**
+
+后端返回的 `suggest` 是：
+
+```text
+SuggestResponse
+```
+
+但前端声明：
+
+[frontend/src/api/index.ts:104-109](g:/code/school-rag-master/frontend/src/api/index.ts:104)
+
+```text
+Promise<StatsResponse>
+```
+
+这应当是类型定义错误，虽然当前页面没有使用 `suggest()`。
+
+另外，后端 `ResultItem` 包含 `score_source`：
+
+[api/schemas.py:35-48](g:/code/school-rag-master/api/schemas.py:35)
+
+但前端的 `ResultItem` 类型没有声明该字段：
+
+[frontend/src/api/types.ts:16-27](g:/code/school-rag-master/frontend/src/api/types.ts:16)
+
+**11. 前端当前没有使用普通搜索接口**
+
+前端 `App.vue` 只导入：
+
+[frontend/src/App.vue:109-115](g:/code/school-rag-master/frontend/src/App.vue:109)
+
+```text
+searchStream
+getStats
+```
+
+实际交互固定调用：
+
+[frontend/src/App.vue:199-204](g:/code/school-rag-master/frontend/src/App.vue:199)
+
+```text
+POST /api/search/stream
+use_llm: true
+```
+
+因此 README 中 `/api/search` 的普通接口主要供 curl、集成测试或其他客户端使用，不是当前页面的主调用路径。
+
+**12. 流式接口在无检索结果时不会返回固定的无结果回答**
+
+`Generator.generate()` 在无结果时会返回 `NO_RESULT_PROMPT_TEMPLATE`：
+
+[rag/generator.py:101-108](g:/code/school-rag-master/rag/generator.py:101)
+
+但流式接口在：
+
+[api/routes/search.py:168-172](g:/code/school-rag-master/api/routes/search.py:168)
+
+判断：
+
+```text
+if not req.use_llm or not results:
+    直接发送 done
+```
+
+因此流式请求无结果时不会把 `NO_RESULT_PROMPT_TEMPLATE` 作为 token 发给前端，前端可能只看到空回答和完成事件。
+
+**七、面向初学者的重构理解建议**
+
+可以把项目拆成三个边界：
+
+**离线数据构建边界**
+
+```text
+scripts/crawl.py
+  -> crawler
+  -> raw files + crawl JSON
+
+scripts/parse.py
+  -> parser
+  -> ParsedDocument JSON
+
+scripts/index_all.py
+  -> chunker
+  -> embedder
+  -> Chroma + SQLite
+```
+
+**在线检索边界**
+
+```text
+Retriever
+  -> query preprocessing
+  -> Chroma
+  -> BM25
+  -> RRF
+  -> Reranker
+  -> SearchResult
+```
+
+**在线回答边界**
+
+```text
+RAGChain
+  -> Generator
+  -> prompts.py
+  -> DeepSeek/OpenAI
+  -> RAGResponse
+```
+
+如果准备重构，优先需要明确以下问题：
+
+1. `crawl.py`、`parse.py`、`index_all.py` 是否要合并成一个正式的数据管线。
+2. BM25 是离线构建还是首次请求懒构建。
+3. API 与直接使用 `RAGChain()` 是否必须保持完全一致的配置行为。
+4. `TableParser` 和 Office 文件解析是否继续保留。
+5. 普通搜索和 SSE 流式搜索是否统一为同一套服务层。
+6. 前端是否需要真正支持 `use_llm=false`。
+7. README 中的运行数据和测试结果是否应该改为当前环境可复现的结果。
+
+本次调研涉及的核心文件包括：
+
+- [crawler/spider.py](g:/code/school-rag-master/crawler/spider.py)
+- [scripts/crawl.py](g:/code/school-rag-master/scripts/crawl.py)
+- [scripts/parse.py](g:/code/school-rag-master/scripts/parse.py)
+- [scripts/index_all.py](g:/code/school-rag-master/scripts/index_all.py)
+- [parser/router.py](g:/code/school-rag-master/parser/router.py)
+- [indexer/chunker.py](g:/code/school-rag-master/indexer/chunker.py)
+- [indexer/embedder.py](g:/code/school-rag-master/indexer/embedder.py)
+- [indexer/vector_store.py](g:/code/school-rag-master/indexer/vector_store.py)
+- [indexer/bm25_search.py](g:/code/school-rag-master/indexer/bm25_search.py)
+- [rag/retriever.py](g:/code/school-rag-master/rag/retriever.py)
+- [rag/generator.py](g:/code/school-rag-master/rag/generator.py)
+- [rag/chain.py](g:/code/school-rag-master/rag/chain.py)
+- [api/routes/search.py](g:/code/school-rag-master/api/routes/search.py)
+- [api/dependencies.py](g:/code/school-rag-master/api/dependencies.py)
+- [frontend/src/App.vue](g:/code/school-rag-master/frontend/src/App.vue)
+- [scripts/integration_test.py](g:/code/school-rag-master/scripts/integration_test.py)
+- [README.md](g:/code/school-rag-master/README.md)
+        
+          
+这个项目适合用“先跑通一条最小链路，再逐层替换和增强”的方式重构。不要一开始就从爬虫、混合检索、OCR、流式接口全部读起，否则很容易陷入细节。
+
+## 一、先建立正确的整体认识
+
+这个项目本质上是三条链路：
+
+```text
+离线数据管线：
+网页/PDF
+  -> 解析成纯文本
+  -> 文本分块
+  -> Embedding 向量
+  -> Chroma + SQLite
+
+在线问答管线：
+用户问题
+  -> 问题向量化
+  -> 检索相关文本块
+  -> 拼接 Prompt
+  -> 调用 DeepSeek
+  -> 返回答案和来源
+
+Web 服务管线：
+Vue 前端
+  -> FastAPI
+  -> RAGChain
+  -> Retriever + Generator
+```
+
+你首先要理解一个核心事实：
+
+> RAG 不是“把问题直接发给大模型”，而是先从自己的知识库中找相关资料，再把资料和问题一起交给大模型生成答案。
+
+项目中的核心调用关系是：
+
+```text
+RAGChain.ask()
+  -> Retriever.retrieve()
+  -> Generator.generate()
+  -> RAGResponse
+```
+
+对应代码：
+
+- [chain.py](file:///g:/code/school-rag-master/rag/chain.py#L51-L182)
+- [retriever.py](file:///g:/code/school-rag-master/rag/retriever.py#L70-L558)
+- [generator.py](file:///g:/code/school-rag-master/rag/generator.py#L24-L195)
+
+## 二、第一步：先不要重构，先跑通项目
+
+先确认环境和数据状态。README 中有两个问题需要注意：
+
+1. 完整流程缺少了解析步骤。
+2. `cd d:\code\aa-my-idea\school-rag` 是旧机器路径。
+
+当前项目正确的数据流程应该是：
+
+```powershell
+python scripts/crawl.py
+python scripts/parse.py
+python scripts/index_all.py
+```
+
+其中：
+
+- `crawl.py`：抓取网页和附件
+- `parse.py`：把 HTML、PDF 等文件解析成统一文档
+- `index_all.py`：分块、向量化、写入向量库
+
+入口文件：
+
+- [crawl.py](file:///g:/code/school-rag-master/scripts/crawl.py#L86-L115)
+- [parse.py](file:///g:/code/school-rag-master/scripts/parse.py#L13-L79)
+- [index_all.py](file:///g:/code/school-rag-master/scripts/index_all.py#L61-L164)
+
+第一次不要直接爬全部学校官网，建议：
+
+```powershell
+python scripts/crawl.py --max-pages 10
+python scripts/parse.py
+python scripts/index_all.py
+```
+
+具体参数以脚本实际的 `--help` 为准。
+
+你需要观察每一步产生了什么：
+
+```text
+爬虫之后：
+data/crawl_*.json
+data/raw/html/
+data/raw/pdf/
+
+解析之后：
+data/parsed_docs.json
+
+索引之后：
+data/chroma/
+data/metadata.db
+```
+
+每一步都要回答三个问题：
+
+1. 输入是什么？
+2. 输出是什么？
+3. 输出被下一步如何使用？
+
+这是理解数据管线最重要的训练方式。
+
+## 三、第二步：按这个顺序阅读源码
+
+### 1. 先读数据模型
+
+先看解析后的统一数据结构：
+
+[base.py](file:///g:/code/school-rag-master/parser/base.py#L19-L70)
+
+重点理解 `ParsedDocument`：
+
+```text
+doc_id
+text
+source_url
+title
+content_type
+publish_date
+file_path
+extra
+```
+
+面试中可以这样回答：
+
+> 不同来源的网页、PDF、图片结构不同，所以解析层先把它们统一成 `ParsedDocument`。后续分块和索引只依赖这个统一接口，从而降低了解析器和索引器之间的耦合。
+
+### 2. 再读解析路由
+
+阅读：
+
+[router.py](file:///g:/code/school-rag-master/parser/router.py#L27-L209)
+
+理解它解决的问题：
+
+```text
+文件扩展名/路径
+  -> HTMLParser
+  -> PDFParser
+  -> ImageParser
+  -> TableParser
+```
+
+然后分别看：
+
+- [html_parser.py](file:///g:/code/school-rag-master/parser/html_parser.py#L25-L157)
+- [pdf_parser.py](file:///g:/code/school-rag-master/parser/pdf_parser.py#L23-L230)
+
+你要特别关注“网页正文提取”问题。网页不是纯正文，通常包含：
+
+```text
+导航栏
+页脚
+侧边栏
+广告
+脚本
+正文
+```
+
+所以解析阶段的目标不是简单执行 `soup.get_text()`，而是尽可能去除噪声，保留标题、日期、正文和附件信息。
+
+### 3. 再读分块
+
+阅读：
+
+[chunker.py](file:///g:/code/school-rag-master/indexer/chunker.py#L69-L217)
+
+分块是 RAG 中非常容易被面试官追问的部分。
+
+当前项目大致使用：
+
+```text
+chunk_size = 1024
+chunk_overlap = 120
+doc_keep_size = 2048
+```
+
+为什么需要分块？
+
+- 文档太长，无法全部放入 Prompt。
+- 整篇文档向量过于粗糙，检索不准确。
+- 小片段更容易与用户问题匹配。
+
+为什么需要 overlap？
+
+假设一句话刚好被切在两个 chunk 之间，没有重叠的话，上下文可能被破坏。重叠可以保留边界信息，但过大会导致：
+
+- chunk 数量增加
+- 索引体积增大
+- 检索结果重复
+- Prompt 成本提高
+
+面试回答可以采用这个结构：
+
+> 我先用固定大小分块作为基线，再根据召回率和上下文完整性调节 chunk size 和 overlap。学校通知通常有标题、时间、对象、办理流程等结构，因此后续可以进一步按段落或标题感知分块，而不是完全依赖字符长度。
+
+### 4. 再读 Embedding
+
+阅读：
+
+[embedder.py](file:///g:/code/school-rag-master/indexer/embedder.py#L22-L165)
+
+Embedding 的作用是：
+
+```text
+文本
+  -> 一个固定维度的向量
+```
+
+例如：
+
+```text
+“研究生报名时间”
+  -> [0.12, -0.03, ..., 0.87]
+```
+
+语义相近的文本，向量距离通常也更近。
+
+项目默认使用：
+
+```text
+BAAI/bge-large-zh-v1.5
+维度：1024
+距离：cosine
+```
+
+需要重点理解一个面试问题：
+
+> 为什么查询和文档都要使用同一个 Embedding 模型？
+
+因为它们必须位于同一个向量空间中。否则查询向量和文档向量的距离没有可比性。
+
+还要注意 BGE 查询前缀：
+
+```text
+为这个句子生成表示以用于检索相关文章：
+```
+
+你可以实际做一个实验：
+
+```text
+查询：选课流程
+查询：学生如何完成课程选择
+查询：校园附近有哪些餐厅
+```
+
+观察召回结果是否符合预期，并记录：
+
+```text
+查询
+Top 5 结果
+是否相关
+最相关结果的排名
+```
+
+这会成为你后续讲“检索效果”的真实材料。
+
+### 5. 再读向量库和 SQLite
+
+阅读：
+
+- [vector_store.py](file:///g:/code/school-rag-master/indexer/vector_store.py#L32-L170)
+- [metadata_store.py](file:///g:/code/school-rag-master/indexer/metadata_store.py#L25-L87)
+
+两者职责不同：
+
+```text
+Chroma：
+  保存向量
+  保存 chunk 文本
+  执行相似度搜索
+
+SQLite：
+  保存文档和 chunk 的结构化信息
+  做统计、审计和元数据查询
+```
+
+面试官可能会问：
+
+> 为什么不全部放在 Chroma 中？
+
+可以回答：
+
+> Chroma 适合向量相似度检索，但业务统计、文档状态、来源审计和结构化查询使用关系型数据库更自然。因此向量库负责召回，SQLite 负责管理文档和索引元数据。
+
+## 四、第三步：先重构出一个最小 RAG
+
+建议你自己新建一个非常简化的版本，但不要一开始修改原项目。先在脑中或临时实验代码中实现这条链路：
+
+```text
+固定的 5 篇文本
+  -> 分块
+  -> Embedding
+  -> Chroma
+  -> 用户问题
+  -> 相似度检索
+  -> 打印结果
+```
+
+最小版本暂时不要加入：
+
+```text
+爬虫
+OCR
+BM25
+Reranker
+查询改写
+查询分解
+SSE
+前端
+```
+
+你需要亲自实现和理解：
+
+1. 文本如何分块。
+2. 文本如何向量化。
+3. 向量如何写入 Chroma。
+4. 查询如何向量化。
+5. 如何得到 Top-K。
+6. 如何打印来源和相似度。
+
+最小版本跑通后，再加入大模型：
+
+```text
+检索结果
+  -> context
+  -> Prompt
+  -> DeepSeek
+  -> answer
+```
+
+项目中的 Prompt 可以参考：
+
+[prompts.py](file:///g:/code/school-rag-master/rag/prompts.py#L10-L52)
+
+生成器可以参考：
+
+[generator.py](file:///g:/code/school-rag-master/rag/generator.py#L80-L195)
+
+你要亲自验证一个关键现象：
+
+```text
+问题：学校今年的选课时间是什么？
+```
+
+分别测试：
+
+```text
+直接问 LLM
+使用 RAG 后问 LLM
+```
+
+观察 RAG 是否能让答案更加具体，并能给出学校官网来源。
+
+## 五、第四步：理解检索质量，而不只是“能搜索”
+
+当前项目的检索器不是单纯向量搜索，还包含：
+
+```text
+向量检索
+  + BM25 关键词检索
+  -> RRF 融合
+  -> Reranker 重排
+  -> 文档去重
+```
+
+对应：
+
+- [retriever.py](file:///g:/code/school-rag-master/rag/retriever.py#L264-L558)
+- [bm25_search.py](file:///g:/code/school-rag-master/indexer/bm25_search.py)
+- [reranker.py](file:///g:/code/school-rag-master/indexer/reranker.py#L67-L134)
+
+### 为什么需要混合检索？
+
+向量检索擅长：
+
+```text
+语义相似
+同义表达
+自然语言问题
+```
+
+BM25 擅长：
+
+```text
+精确关键词
+通知编号
+文件名称
+专业名词
+时间和数字
+```
+
+例如：
+
+```text
+查询：2025 年校内文件 123 号
+```
+
+BM25 可能比纯向量检索更可靠。
+
+### 为什么还要 Reranker？
+
+第一阶段召回可以多拿一些候选，例如 Top 20。然后使用 Cross-Encoder 对：
+
+```text
+(query, document_chunk)
+```
+
+进行更精细的相关性判断，最后保留 Top 5。
+
+可以把它总结成两阶段检索：
+
+```text
+Recall：
+  快速、大范围召回候选
+
+Rerank：
+  慢速、精确排序
+```
+
+### 你应该做的对比实验
+
+准备 20 个真实问题，分别测试：
+
+```text
+只用向量检索
+向量 + BM25
+向量 + BM25 + Reranker
+```
+
+记录：
+
+```text
+Top 1 是否相关
+Top 3 是否包含正确资料
+Top 5 是否包含正确资料
+检索耗时
+```
+
+面试时不要只说“用了混合检索”，而要说：
+
+> 我做了消融对比，发现纯向量检索对语义问题较好，但对通知编号、日期和专有名词不稳定，所以加入 BM25；之后再用 Reranker 提升候选结果的精确排序。
+
+## 六、第五步：理解 RAG 生成阶段
+
+生成阶段的本质是：
+
+```text
+用户问题 + 检索到的上下文
+  -> Prompt
+  -> LLM
+```
+
+项目会将检索结果组织成类似内容：
+
+```text
+文档 1
+来源站点：教务部
+标题：选课通知
+来源 URL：...
+正文片段：...
+
+文档 2
+来源站点：...
+标题：...
+正文片段：...
+```
+
+然后交给模型。
+
+需要重点理解三个风险。
+
+### 1. 幻觉
+
+如果检索结果不相关，模型可能仍然强行回答。
+
+因此 Prompt 应明确要求：
+
+```text
+只根据提供的资料回答
+资料不足时明确说明
+不要编造官网没有的信息
+给出来源
+```
+
+### 2. 上下文过长
+
+检索结果太多会导致：
+
+- 超出上下文窗口
+- 重要信息被稀释
+- 成本增加
+- 延迟变高
+
+项目对每个检索结果限制了上下文长度，相关逻辑在：
+
+[generator.py](file:///g:/code/school-rag-master/rag/generator.py#L172-L195)
+
+### 3. 来源溯源
+
+回答不能只有一段文字，还要能说明：
+
+```text
+答案来自哪个文档
+原始 URL 是什么
+对应的正文片段是什么
+```
+
+这也是学校官网问答系统相比普通聊天机器人的重要价值。
+
+## 七、第六步：最后再理解 API 和前端
+
+后端入口：
+
+[main.py](file:///g:/code/school-rag-master/api/main.py#L45-L103)
+
+搜索接口：
+
+[search.py](file:///g:/code/school-rag-master/api/routes/search.py#L55-L225)
+
+依赖注入：
+
+[dependencies.py](file:///g:/code/school-rag-master/api/dependencies.py#L20-L78)
+
+前端入口：
+
+[App.vue](file:///g:/code/school-rag-master/frontend/src/App.vue#L173-L240)
+
+前端实际主要调用的是：
+
+```text
+POST /api/search/stream
+```
+
+而不是普通的：
+
+```text
+POST /api/search
+```
+
+SSE 流程可以这样理解：
+
+```text
+前端发起请求
+  -> 后端先完成检索
+  -> 发送 meta 事件和来源
+  -> LLM 逐段生成
+  -> 发送 token 事件
+  -> 发送 done 事件
+```
+
+面试官可能问：
+
+> 为什么需要流式接口？
+
+回答：
+
+> 大模型生成具有明显延迟。如果等待完整答案生成后一次性返回，用户会感觉系统没有响应。SSE 可以先返回检索结果和来源，再持续返回生成 token，改善首字节响应时间和交互体验。
+
+还要理解当前实现中的一个问题：
+
+- `/api/health` 主要检查 Chroma 和 SQLite。
+- 它不一定能发现 Embedding 模型、BM25 或 LLM 不可用。
+- 流式接口在没有检索结果时，可能直接结束而不返回固定的无结果文本。
+
+这些都是你可以在重构时修复，并在面试中作为工程思考来讲的点。
+
+## 八、推荐的重构顺序
+
+按照以下顺序最适合学习：
+
+### 阶段 1：删除复杂度，保留核心
+
+先实现：
+
+```text
+本地几篇文本
+  -> 简单分块
+  -> Embedding
+  -> Chroma
+  -> Top-K 检索
+```
+
+目标：你能解释每一行代码的作用。
+
+### 阶段 2：加入 LLM
+
+实现：
+
+```text
+Top-K 文档
+  -> Prompt
+  -> DeepSeek
+  -> 答案
+```
+
+目标：理解 RAG 和普通 LLM 调用的差异。
+
+### 阶段 3：加入统一文档模型
+
+把 HTML、PDF 都转成：
+
+```text
+ParsedDocument
+```
+
+目标：理解解析层和索引层如何解耦。
+
+### 阶段 4：加入真实爬虫
+
+先只爬一个学校站点、少量页面。
+
+目标：理解：
+
+```text
+URL 去重
+访问队列
+页面过滤
+附件下载
+失败重试
+```
+
+当前实际爬虫主要使用 `requests + BeautifulSoup + lxml`，并非 README 所写的 Scrapy + Playwright。代码见：
+
+[spider.py](file:///g:/code/school-rag-master/crawler/spider.py#L20-L24)
+
+### 阶段 5：加入 BM25 和 Reranker
+
+目标：做检索质量对比，而不是为了“堆技术”。
+
+### 阶段 6：加入 FastAPI
+
+先写普通接口：
+
+```text
+POST /api/search
+```
+
+确认请求和响应结构稳定后，再实现：
+
+```text
+POST /api/search/stream
+```
+
+### 阶段 7：接入 Vue
+
+前端只需要先完成：
+
+```text
+输入问题
+  -> 请求接口
+  -> 展示答案
+  -> 展示来源
+```
+
+最后再做搜索建议、统计、缓存和样式。
+
+## 九、你必须整理的面试材料
+
+建议你自己维护一份“项目面试笔记”，至少包含下面内容。
+
+### 1. 一分钟项目介绍
+
+可以按照这个模板组织：
+
+> 这是一个面向学校官网的 RAG 智能检索系统。离线阶段通过爬虫获取网页和 PDF，经过解析和文本分块后，使用 BGE 模型生成向量并存入 Chroma，同时将文档元数据写入 SQLite。在线阶段先对用户问题进行向量检索，也可以结合 BM25 和 Reranker 提升召回质量，再将相关片段、来源和用户问题组织成 Prompt，调用 DeepSeek 生成带来源的回答。后端使用 FastAPI，前端使用 Vue3，并通过 SSE 实现流式输出。
+
+不要直接背这段。你需要能根据代码解释每个名词。
+
+### 2. 系统架构图
+
+你应该自己画出：
+
+```text
+Crawler
+  -> Raw Files
+  -> ParserRouter
+  -> ParsedDocument
+  -> TextChunker
+  -> Embedder
+  -> Chroma / SQLite
+
+Query
+  -> Retriever
+  -> Vector Search / BM25
+  -> RRF
+  -> Reranker
+  -> Generator
+  -> DeepSeek
+  -> Answer + Sources
+```
+
+### 3. 关键参数表
+
+至少记录：
+
+```text
+chunk_size
+chunk_overlap
+top_k
+embedding model
+embedding dimension
+similarity metric
+BM25 参数
+RRF k
+reranker model
+LLM temperature
+```
+
+同时记录每个参数改变后对结果的影响。
+
+### 4. 问题和解决方案
+
+准备真实案例：
+
+```text
+网页正文提取不干净，怎么办？
+PDF 是扫描件，怎么办？
+检索不到正确通知，怎么办？
+答案出现幻觉，怎么办？
+同一篇文档重复出现，怎么办？
+上下文太长，怎么办？
+LLM 调用失败，怎么办？
+首次请求为什么很慢？
+如何支持流式输出？
+如何评估 RAG 效果？
+```
+
+每个问题都按下面格式回答：
+
+```text
+现象
+原因
+解决方案
+代价或副作用
+如何验证
+```
+
+## 十、建议你马上做的第一轮任务
+
+按这个顺序执行：
+
+1. 阅读 [parser/base.py](file:///g:/code/school-rag-master/parser/base.py#L19-L70)，理解 `ParsedDocument`。
+2. 阅读 [indexer/chunker.py](file:///g:/code/school-rag-master/indexer/chunker.py#L69-L217)，手动拿一篇文本测试分块。
+3. 阅读 [indexer/embedder.py](file:///g:/code/school-rag-master/indexer/embedder.py#L22-L88)，理解文本到向量的过程。
+4. 阅读 [indexer/vector_store.py](file:///g:/code/school-rag-master/indexer/vector_store.py#L32-L170)，理解写入和查询。
+5. 阅读 [rag/retriever.py](file:///g:/code/school-rag-master/rag/retriever.py#L264-L558)，先只关注纯向量检索部分。
+6. 阅读 [rag/generator.py](file:///g:/code/school-rag-master/rag/generator.py#L80-L195)，理解 Prompt 和 LLM 调用。
+7. 用一个问题手动调用 `RAGChain.search_only()`。
+8. 再调用 `RAGChain.ask()`，比较纯检索结果和带 LLM 的答案。
+9. 最后阅读 API 和前端。
+
+你当前最重要的目标不是“把整个项目背下来”，而是做到：
+
+> 给定一个用户问题，你能从 API 入口一路追踪到检索、Prompt、LLM 和最终响应；给定一篇官网文章，你能解释它如何变成向量并被检索出来。
+
+做到这两点后，再加入爬虫、混合检索、Reranker 和前端，面试时就能从原理、代码和工程取舍三个层面回答。

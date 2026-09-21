@@ -1,0 +1,275 @@
+# 爬取站点配置 - 针对中国矿业大学官网全量爬取
+
+sites:
+  # ==================== 主站 ====================
+  - name: "中国矿业大学主站"
+    base_url: "https://www.cumt.edu.cn"
+    allowed_domains:
+      - "cumt.edu.cn"
+    start_urls:
+      - "https://www.cumt.edu.cn"
+      - "https://www.cumt.edu.cn/index/xxgg.htm"
+      - "https://www.cumt.edu.cn/xskd/xsbg1.htm"
+      - "https://www.cumt.edu.cn/xskd/rwjt1.htm"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+      - ".*/login.*"
+      - ".*/logout.*"
+      - ".*javascript:.*"
+      - ".*/portal\\.cumt\\.edu\\.cn.*"
+      - ".*/kdoa\\.cumt\\.edu\\.cn.*"
+      - ".*/mail\\.cumt\\.edu\\.cn.*"
+      - ".*/yunpan\\.cumt\\.edu\\.cn.*"
+      - ".*/e-cumt\\.cumt\\.edu\\.cn.*"
+      - ".*/nic\\.cumt\\.edu\\.cn.*"
+      - ".*/gsoft\\.cumt\\.edu\\.cn.*"
+
+  - name: "信息公告"
+    base_url: "https://www.cumt.edu.cn"
+    allowed_domains:
+      - "cumt.edu.cn"
+    start_urls:
+      - "https://www.cumt.edu.cn/index/xxgg.htm"
+    depth: 4
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "矿大新闻"
+    base_url: "http://news.cumt.edu.cn"
+    allowed_domains:
+      - "news.cumt.edu.cn"
+      - "cumt.edu.cn"
+    start_urls:
+      - "http://news.cumt.edu.cn"
+      - "http://news.cumt.edu.cn/sdyw.htm"
+      - "http://news.cumt.edu.cn/sdxw.htm"
+      - "http://news.cumt.edu.cn/mtkd.htm"
+      - "http://news.cumt.edu.cn/xykx.htm"
+    depth: 4
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*news\\.cumt\\.edu\\.cn.*"
+      - ".*cumt\\.edu\\.cn/info/.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 教学教务 ====================
+  - name: "教务部"
+    base_url: "http://jwb.cumt.edu.cn"
+    allowed_domains:
+      - "jwb.cumt.edu.cn"
+    start_urls:
+      - "http://jwb.cumt.edu.cn"
+      - "http://jwb.cumt.edu.cn/tzgg.htm"
+      - "http://jwb.cumt.edu.cn/xsfw/xjgl.htm"
+      - "http://jwb.cumt.edu.cn/xsfw/ksgl.htm"
+      - "http://jwb.cumt.edu.cn/xsfw/xkgl.htm"
+      - "http://jwb.cumt.edu.cn/jsfw/cjgl.htm"
+      - "http://jwb.cumt.edu.cn/gzzd1/xxwj.htm"
+      - "http://jwb.cumt.edu.cn/jxsj.htm"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*jwb\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 招生 ====================
+  - name: "本科招生网"
+    base_url: "http://zs.cumt.edu.cn"
+    allowed_domains:
+      - "zs.cumt.edu.cn"
+    start_urls:
+      - "http://zs.cumt.edu.cn"
+      - "http://zs.cumt.edu.cn/zsw/zsjh.html"
+      - "http://zs.cumt.edu.cn/zsw/lnfs.html"
+      - "http://zs.cumt.edu.cn/zsw/bkzs.html"
+    depth: 4
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*zs\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "研究生院"
+    base_url: "http://yjsy.cumt.edu.cn"
+    allowed_domains:
+      - "yjsy.cumt.edu.cn"
+    start_urls:
+      - "http://yjsy.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*yjsy\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 图书馆 ====================
+  - name: "图书馆"
+    base_url: "http://lib.cumt.edu.cn"
+    allowed_domains:
+      - "lib.cumt.edu.cn"
+    start_urls:
+      - "http://lib.cumt.edu.cn"
+    depth: 2
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*lib\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 学生相关 ====================
+  - name: "学生工作处"
+    base_url: "http://xsc.cumt.edu.cn"
+    allowed_domains:
+      - "xsc.cumt.edu.cn"
+    start_urls:
+      - "http://xsc.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*xsc\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "团委"
+    base_url: "http://youth.cumt.edu.cn"
+    allowed_domains:
+      - "youth.cumt.edu.cn"
+    start_urls:
+      - "http://youth.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*youth\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 信息公开与就业 ====================
+  - name: "信息公开"
+    base_url: "http://xxgk.cumt.edu.cn"
+    allowed_domains:
+      - "xxgk.cumt.edu.cn"
+      - "cumt.edu.cn"
+    start_urls:
+      - "http://xxgk.cumt.edu.cn"
+    depth: 5
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*xxgk\\.cumt\\.edu\\.cn.*"
+      - ".*cumt\\.edu\\.cn/info/.*"
+      - ".*cumt\\.edu\\.cn/\\d+/\\w+/c\\d+a\\d+/page\\.htm"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "就业指导中心"
+    base_url: "http://jyw.cumt.edu.cn"
+    allowed_domains:
+      - "jyw.cumt.edu.cn"
+    start_urls:
+      - "http://jyw.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*jyw\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 人事与科研 ====================
+  - name: "人力资源部"
+    base_url: "http://hr.cumt.edu.cn"
+    allowed_domains:
+      - "hr.cumt.edu.cn"
+    start_urls:
+      - "http://hr.cumt.edu.cn"
+    depth: 2
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*hr\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "科学技术研究院"
+    base_url: "http://kjc.cumt.edu.cn"
+    allowed_domains:
+      - "kjc.cumt.edu.cn"
+    start_urls:
+      - "http://kjc.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*kjc\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 国际与党建 ====================
+  - name: "国际合作交流处"
+    base_url: "http://global.cumt.edu.cn"
+    allowed_domains:
+      - "global.cumt.edu.cn"
+    start_urls:
+      - "http://global.cumt.edu.cn"
+    depth: 2
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*global\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  - name: "党委宣传部"
+    base_url: "http://dwxcb.cumt.edu.cn"
+    allowed_domains:
+      - "dwxcb.cumt.edu.cn"
+    start_urls:
+      - "http://dwxcb.cumt.edu.cn"
+    depth: 2
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*dwxcb\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+  # ==================== 规章制度 ====================
+  - name: "规章制度"
+    base_url: "http://rules.cumt.edu.cn"
+    allowed_domains:
+      - "rules.cumt.edu.cn"
+    start_urls:
+      - "http://rules.cumt.edu.cn"
+    depth: 3
+    delay: 1.5
+    js_render: false
+    url_patterns:
+      - ".*rules\\.cumt\\.edu\\.cn.*"
+    exclude_patterns:
+      - ".*\\.(jpg|jpeg|png|gif|svg|ico|css|js|mp4|mp3|wav|avi|flv|wmv)$"
+
+# 全局配置
+global:
+  concurrent_requests: 4
+  download_timeout: 30
+  auto_discover: true
+  respect_robots_txt: true
+  user_agent: "SchoolRAG-Bot/1.0"
