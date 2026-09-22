@@ -16,7 +16,7 @@ from typing import Optional
 
 from loguru import logger
 
-from config.settings import settings
+from config.settings import settings, resolve_inference_device, resolve_use_fp16
 
 
 class Embedder:
@@ -72,12 +72,33 @@ class Embedder:
 
             from sentence_transformers import SentenceTransformer
 
-            self._model = SentenceTransformer(model_source, trust_remote_code=False)
+            device = resolve_inference_device()
+            use_fp16 = resolve_use_fp16(device)
+
+            st_kwargs = dict(device=device, trust_remote_code=False)
+            # 优先离线加载：local_files_only 是调用级参数，不会像 HF_HUB_OFFLINE 那样在
+            # 导入时被固化为常量，因此本地加载失败后仍可回退到联网（镜像）。
+            try:
+                self._model = SentenceTransformer(
+                    model_source, local_files_only=True, **st_kwargs
+                )
+            except Exception as e:
+                logger.info(
+                    f"离线加载失败，回退到联网加载"
+                    f"(镜像: {os.environ.get('HF_ENDPOINT', '未设置')}): {e}"
+                )
+                self._model = SentenceTransformer(model_source, **st_kwargs)
+
+            if use_fp16:
+                # FP16推理：权重显存占用减半（bge-large 约1.24GB -> 约0.62GB）
+                self._model.half()
 
             # 获取实际维度
             test_emb = self._model.encode(["测试"], normalize_embeddings=True)
             self._dimension = test_emb.shape[1]
-            logger.info(f"BGE模型加载完成, 维度={self._dimension}")
+            logger.info(
+                f"BGE模型加载完成, 维度={self._dimension}, 设备={device}, FP16={use_fp16}"
+            )
         except Exception as e:
             logger.error(f"BGE模型加载失败: {e}")
             logger.info("提示: 设置 BGE_LOCAL_PATH=<模型路径> 或 HF_ENDPOINT=https://hf-mirror.com")

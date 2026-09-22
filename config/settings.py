@@ -108,6 +108,37 @@ class RetrievalSettings(BaseSettings):
         extra = "ignore"
 
 
+class RuntimeSettings(BaseSettings):
+    """推理运行时配置（设备与精度）"""
+    # 推理设备：auto=有CUDA则用GPU，也可显式指定 cpu / cuda / cuda:1
+    device: str = Field(default="auto", alias="DEVICE")
+    # 是否使用FP16半精度推理（仅在CUDA设备上生效，可明显降低显存占用）
+    use_fp16: bool = Field(default=True, alias="USE_FP16")
+
+    class Config:
+        env_file = ".env"
+        extra = "ignore"
+
+
+def resolve_inference_device() -> str:
+    """解析推理设备：DEVICE=auto 时优先使用CUDA，不可用则回退CPU"""
+    device = (settings.runtime.device or "auto").strip()
+    if device.lower() != "auto":
+        return device
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except Exception:
+        pass
+    return "cpu"
+
+
+def resolve_use_fp16(device: str) -> bool:
+    """是否启用FP16：仅在CUDA设备上启用（CPU上FP16更慢，且部分算子不支持）"""
+    return bool(settings.runtime.use_fp16) and device.startswith("cuda")
+
+
 class AppSettings(BaseSettings):
     """应用全局配置"""
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
@@ -119,6 +150,7 @@ class AppSettings(BaseSettings):
     vector_db: VectorDBSettings = VectorDBSettings()
     api: APISettings = APISettings()
     retrieval: RetrievalSettings = RetrievalSettings()
+    runtime: RuntimeSettings = RuntimeSettings()
 
     class Config:
         env_file = ".env"

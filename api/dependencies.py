@@ -4,9 +4,13 @@ import os
 
 from loguru import logger
 
-# 离线模式环境变量（在import前设置）
-os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
+# 模型加载策略：本地优先（离线），联网仅作兜底。
+# - 不设置 TRANSFORMERS_OFFLINE / HF_HUB_OFFLINE，否则本地模型缺失时无法回退到镜像，
+#   会直接启动失败而不是降级下载。
+# - “离线优先”由加载器内部的两段式加载保证（见 indexer/embedder.py、indexer/reranker.py）：
+#   先以 local_files_only=True 尝试本地加载，失败后才联网；配置了本地模型路径时全程无网络请求。
+# - HF_ENDPOINT 是第三方库在导入时读取的常量，必须在导入 transformers / huggingface_hub 之前设置。
+os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 
 from config.settings import settings
 from rag.chain import RAGChain

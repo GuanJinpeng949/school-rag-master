@@ -12,12 +12,13 @@
 - 仅对检索后的候选结果重排序（数量少，计算开销可控）
 - 默认使用BAAI/bge-reranker-v2-m3（多语言、轻量、效果好）
 """
+import os
 import time
 from typing import Optional
 
 from loguru import logger
 
-from config.settings import settings
+from config.settings import settings, resolve_inference_device, resolve_use_fp16
 
 
 class Reranker:
@@ -41,23 +42,52 @@ class Reranker:
         if self._model is not None:
             return
 
+        device = resolve_inference_device()
+        use_fp16 = resolve_use_fp16(device)
+
         try:
             from FlagEmbedding import FlagReranker
 
             logger.info(f"加载重排序模型: {self.model_name}")
             self._model = FlagReranker(
                 self.model_name,
-                use_fp16=True,  # FP16加速推理
+                use_fp16=use_fp16,  # 仅在CUDA设备上启用FP16
             )
-            logger.info("重排序模型加载完成")
+            logger.info(
+                f"重排序模型加载完成 (设备={device}, FP16={use_fp16})"
+            )
         except ImportError:
             # FlagEmbedding未安装，回退到sentence-transformers
             logger.info("FlagEmbedding未安装，使用sentence-transformers CrossEncoder")
             try:
                 from sentence_transformers import CrossEncoder
 
-                self._model = CrossEncoder(self.model_name, max_length=512)
-                logger.info(f"CrossEncoder加载完成: {self.model_name}")
+                automodel_args = None
+                if use_fp16:
+                    # CrossEncoder 通过 automodel_args 传入半精度，权重显存占用减半
+                    # （bge-reranker-v2-m3 约2.11GB -> 约1.06GB）
+                    import torch
+                    automodel_args = {"torch_dtype": torch.float16}
+
+                cross_encoder_kwargs = dict(
+                    max_length=512, device=device, automodel_args=automodel_args
+                )
+                # 优先离线加载：local_files_only 是调用级参数，不会像 HF_HUB_OFFLINE 那样在
+                # 导入时被固化为常量，因此本地加载失败后仍可回退到联网（镜像）。
+                try:
+                    self._model = CrossEncoder(
+                        self.model_name, local_files_only=True, **cross_encoder_kwargs
+                    )
+                except Exception as e:
+                    logger.info(
+                        f"离线加载失败，回退到联网加载"
+                        f"(镜像: {os.environ.get('HF_ENDPOINT', '未设置')}): {e}"
+                    )
+                    self._model = CrossEncoder(self.model_name, **cross_encoder_kwargs)
+                logger.info(
+                    f"CrossEncoder加载完成: {self.model_name} "
+                    f"(设备={device}, FP16={use_fp16})"
+                )
             except Exception as e:
                 logger.error(f"重排序模型加载失败: {e}")
                 logger.info("提示: 安装FlagEmbedding: pip install FlagEmbedding")

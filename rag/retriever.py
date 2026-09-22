@@ -400,16 +400,20 @@ class Retriever:
         fused = self._rrf_fuse(vector_results, bm25_results)
 
         # ── Step 4: 阈值过滤 ──
-        filtered = []
-        for item in fused:
-            if item.get("rrf_score", 0) < self.score_threshold * 0.1:
-                # RRF分数范围较小，阈值需相应调整
-                continue
-            filtered.append(item)
-
-        if not filtered:
-            # 阈值过滤过严时，保留原始融合结果
+        # 注意：score_threshold 是针对向量相似度的经验值，而 RRF 分数是 1/(k+rank) 量级（约0.01~0.05），
+        # 两者范围完全不同。若统一用 score_threshold*0.1 过滤，会误杀大量候选
+        # （实测 11 条融合结果只剩 2 条），使重排序拿不到足够候选。
+        # 因此启用重排序时不再做粗粒度过滤，把候选交给 Cross-Encoder 做精确排序。
+        if self.use_reranker:
             filtered = fused
+        else:
+            filtered = [
+                item for item in fused
+                if item.get("rrf_score", 0) >= self.score_threshold * 0.1
+            ]
+            if not filtered:
+                # 阈值过滤过严时，保留原始融合结果
+                filtered = fused
 
         # ── Step 5: Cross-Encoder重排序 ──
         if self.use_reranker and filtered:
