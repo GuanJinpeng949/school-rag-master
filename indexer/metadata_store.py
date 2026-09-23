@@ -13,6 +13,7 @@
 """
 import json
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -27,18 +28,23 @@ class MetadataStore:
 
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or settings.metadata_db
-        self._conn: Optional[sqlite3.Connection] = None
+        # 每个线程各持一个连接：sqlite3 默认禁止连接跨线程使用
+        # （check_same_thread=True），而 FastAPI 的同步依赖运行在线程池线程中，
+        # 连接会在 A 线程创建、B 线程使用，从而抛 RuntimeError。
+        self._local = threading.local()
         self._init_db()
 
     # 不太理解构造
     def _get_conn(self) -> sqlite3.Connection:
-        """获取数据库连接"""
-        if self._conn is None:
+        """获取当前线程的数据库连接"""
+        conn = getattr(self._local, "conn", None)
+        if conn is None:
             Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
-            self._conn = sqlite3.connect(self.db_path)
-            self._conn.row_factory = sqlite3.Row
-            self._conn.execute("PRAGMA journal_mode=WAL")
-        return self._conn
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode=WAL")
+            self._local.conn = conn
+        return conn
 
     def _init_db(self):
         """初始化数据库表"""
@@ -235,10 +241,11 @@ class MetadataStore:
         }
 
     def close(self):
-        """关闭数据库连接"""
-        if self._conn:
-            self._conn.close()
-            self._conn = None
+        """关闭当前线程的数据库连接"""
+        conn = getattr(self._local, "conn", None)
+        if conn is not None:
+            conn.close()
+            self._local.conn = None
 
 
     """

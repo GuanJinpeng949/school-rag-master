@@ -92,6 +92,8 @@ class RetrievalSettings(BaseSettings):
         default="BAAI/bge-reranker-v2-m3",
         alias="RERANKER_MODEL",
     )
+    # 单次重排序的最大候选数：Cross-Encoder 是检索的延迟瓶颈，候选越多越慢
+    rerank_max_candidates: int = Field(default=10, alias="RERANK_MAX_CANDIDATES")
     # 每文档最多保留的chunk数（去重策略）
     max_chunks_per_doc: int = Field(default=2, alias="MAX_CHUNKS_PER_DOC")
     # 相似度阈值

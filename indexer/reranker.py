@@ -25,16 +25,16 @@ class Reranker:
     """Cross-Encoder重排序器"""
 
     def __init__(self, model_name: Optional[str] = None,
-                 timeout: int = 30, max_candidates: int = 20):
+                 timeout: int = 30, max_candidates: Optional[int] = None):
         """
         Args:
             model_name: 重排序模型名称
             timeout: 单次重排序超时时间(秒)
-            max_candidates: 最大重排序候选数（过多会慢）
+            max_candidates: 最大重排序候选数（过多会慢），默认取配置 RERANK_MAX_CANDIDATES
         """
         self.model_name = model_name or settings.retrieval.reranker_model
         self.timeout = timeout
-        self.max_candidates = max_candidates
+        self.max_candidates = max_candidates or settings.retrieval.rerank_max_candidates
         self._model = None
 
     def _load_model(self):
@@ -135,13 +135,10 @@ class Reranker:
                     scores = [scores]
             else:
                 # sentence-transformers CrossEncoder
-                scores = self._model.predict(pairs, batch_size=32)
-                # 归一化到0~1范围（CrossEncoder输出可能是负值~正值）
-                min_s, max_s = min(scores), max(scores)
-                if max_s > min_s:
-                    scores = [(s - min_s) / (max_s - min_s) for s in scores]
-                else:
-                    scores = [0.5] * len(scores)
+                # CrossEncoder.predict 默认已应用 nn.Sigmoid（num_labels==1），输出
+                # 本身就是0~1的相关性概率，且可跨查询比较。原实现在此之上再做
+                # min-max 拉伸，会让第一名恒为1.0、末位恒为0.0，破坏区分度。
+                scores = [float(s) for s in self._model.predict(pairs, batch_size=32)]
 
             elapsed = time.time() - start_time
             logger.info(

@@ -14,6 +14,7 @@
 - 纯向量模式(hybrid=False): 查询预处理 → 向量检索 → 阈值过滤 → 去重
 - 混合检索模式(hybrid=True): 查询预处理 → 向量+BM25 → RRF融合 → 重排序 → 去重
 """
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -23,6 +24,70 @@ from indexer.embedder import Embedder
 from indexer.vector_store import VectorStore
 from indexer.bm25_search import BM25Search
 from indexer.reranker import Reranker
+
+
+# 列表页/栏目页的噪声容易被解析成标题，这类内容直接展示没有意义
+_TITLE_JUNK_MARKERS = ("浏览量", "浏览次数", "点击量", "时间：", "来源：", "作者：", "责任编辑")
+_TITLE_JUNK_TITLES = {"首页", "主页", "返回", "更多", "查看更多", "通知公告", "新闻动态"}
+
+
+def _is_junk_title(candidate: str) -> bool:
+    """判断标题是否为列表页噪声"""
+    return (
+        not candidate
+        or candidate in _TITLE_JUNK_TITLES
+        or len(candidate) < 3
+        or any(marker in candidate for marker in _TITLE_JUNK_MARKERS)
+    )
+
+
+def _clean_title(title: str, text: str, site: str = "") -> str:
+    """清理噪声标题，必要时回退到正文中第一行有意义的文本
+
+    学校官网列表页的正文区常被解析出「浏览量：时间：2023-09-02」或「首页」这类
+    内容，而真正的标题往往就在正文首行，因此优先从正文回退。
+    """
+    cleaned = re.sub(r"\s+", " ", title or "").strip()
+    if not _is_junk_title(cleaned):
+        return cleaned
+
+    for line in (text or "").splitlines():
+        candidate = re.sub(r"\s+", " ", line).strip()
+        # 分块时会写入「标题：xxx」前缀，回退时要去掉
+        candidate = re.sub(r"^标题[：:]\s*", "", candidate)
+        if candidate.startswith("【结构化表格】"):
+            continue
+        if not _is_junk_title(candidate):
+            return candidate[:60]
+
+    return site or "未知来源"
+
+
+def _text_key(text: str) -> str:
+    """正文去重键：忽略空白与换行差异"""
+    return re.sub(r"\s+", "", text or "")
+
+
+def _dedup_by_text(items: list, get_text) -> list:
+    """按正文去重，保留排序靠前的一条
+
+    学校官网存在大量镜像页/栏目页复用同一份正文（实测1198个chunk中207个正文
+    完全重复），重复内容会挤占重排序候选名额，也让结果缺乏多样性。
+    """
+    seen: set[str] = set()
+    kept = []
+    for item in items:
+        key = _text_key(get_text(item))
+        if key:
+            if key in seen:
+                continue
+            seen.add(key)
+        kept.append(item)
+
+    dropped = len(items) - len(kept)
+    if dropped:
+        logger.info(f"正文去重: 丢弃{dropped}条重复内容, 剩余{len(kept)}条")
+    return kept
 
 
 @dataclass
@@ -356,7 +421,8 @@ class Retriever:
                 text=item.get("text", ""),
                 source_url=meta.get("source_url", ""),
                 source_site=meta.get("source_site", ""),
-                title=meta.get("title", ""),
+                title=_clean_title(meta.get("title", ""), item.get("text", ""),
+                                   meta.get("source_site", "")),
                 content_type=meta.get("content_type", ""),
                 publish_date=meta.get("publish_date", ""),
                 score=score,
@@ -399,6 +465,10 @@ class Retriever:
         # ── Step 3: RRF融合 ──
         fused = self._rrf_fuse(vector_results, bm25_results)
 
+        # ── Step 3.5: 正文去重 ──
+        # 必须放在重排序之前：候选数是重排序的延迟瓶颈，重复正文会白占名额
+        fused = _dedup_by_text(fused, lambda x: x.get("text", ""))
+
         # ── Step 4: 阈值过滤 ──
         # 注意：score_threshold 是针对向量相似度的经验值，而 RRF 分数是 1/(k+rank) 量级（约0.01~0.05），
         # 两者范围完全不同。若统一用 score_threshold*0.1 过滤，会误杀大量候选
@@ -437,7 +507,8 @@ class Retriever:
                     text=item.get("text", ""),
                     source_url=meta.get("source_url", ""),
                     source_site=meta.get("source_site", ""),
-                    title=meta.get("title", ""),
+                    title=_clean_title(meta.get("title", ""), item.get("text", ""),
+                                       meta.get("source_site", "")),
                     content_type=meta.get("content_type", ""),
                     publish_date=meta.get("publish_date", ""),
                     score=score,
@@ -455,7 +526,8 @@ class Retriever:
                     text=item.get("text", ""),
                     source_url=meta.get("source_url", ""),
                     source_site=meta.get("source_site", ""),
-                    title=meta.get("title", ""),
+                    title=_clean_title(meta.get("title", ""), item.get("text", ""),
+                                       meta.get("source_site", "")),
                     content_type=meta.get("content_type", ""),
                     publish_date=meta.get("publish_date", ""),
                     score=item.get("rrf_score", 0),
