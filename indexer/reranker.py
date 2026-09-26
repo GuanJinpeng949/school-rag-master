@@ -11,6 +11,8 @@
 - Cross-Encoder逐对计算query-doc相关性，精度显著更高
 - 仅对检索后的候选结果重排序（数量少，计算开销可控）
 - 默认使用BAAI/bge-reranker-v2-m3（多语言、轻量、效果好）
+- 默认跑在CPU上（RERANK_DEVICE）：与BGE嵌入模型同时驻留GPU会超出4GB显存，
+  且实测本机GPU仅比CPU快约2.6s，不值得冒原生崩溃的风险
 """
 import os
 import time
@@ -18,22 +20,20 @@ from typing import Optional
 
 from loguru import logger
 
-from config.settings import settings, resolve_inference_device, resolve_use_fp16
+from config.settings import settings, resolve_rerank_device, resolve_use_fp16
 
 
 class Reranker:
     """Cross-Encoder重排序器"""
 
     def __init__(self, model_name: Optional[str] = None,
-                 timeout: int = 30, max_candidates: Optional[int] = None):
+                 max_candidates: Optional[int] = None):
         """
         Args:
             model_name: 重排序模型名称
-            timeout: 单次重排序超时时间(秒)
             max_candidates: 最大重排序候选数（过多会慢），默认取配置 RERANK_MAX_CANDIDATES
         """
         self.model_name = model_name or settings.retrieval.reranker_model
-        self.timeout = timeout
         self.max_candidates = max_candidates or settings.retrieval.rerank_max_candidates
         self._model = None
 
@@ -42,7 +42,7 @@ class Reranker:
         if self._model is not None:
             return
 
-        device = resolve_inference_device()
+        device = resolve_rerank_device()
         use_fp16 = resolve_use_fp16(device)
 
         try:

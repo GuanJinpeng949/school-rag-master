@@ -26,6 +26,26 @@ _TITLE_SUFFIXES = (
     "通知", "办法", "规定", "细则", "方案", "规则", "制度",
 )
 
+# 发文字号，如「中矿委〔2022〕24 号」「中矿委[2012]10 号」。括号在不同 PDF 里
+# 可能是〔〕、[]、【】，字体映射失败时还会变成 „‟，所以不限定括号字符
+_DOC_NUMBER_RE = re.compile(r"^[^\d]{0,20}\d{4}[^\d]{0,4}\d{1,4}\s*号$")
+
+
+def _is_doc_number(line: str) -> bool:
+    """判断是否为发文字号"""
+    return len(line) <= 30 and bool(_DOC_NUMBER_RE.match(line))
+
+
+def _first_quoted_name(text: str) -> str:
+    """取正文中第一个《》里的名称
+
+    部分公文没有单独排版的标题行（发文机关标志是图片、提取不到），
+    主送机关之后直接就是正文，此时文号后面的《办法》名就是标题
+    """
+    match = re.search(r"《([^《》]{4,60})》", text)
+    # 书名号可能跨行（如「《中国矿业大学财务分级管理办\n法》」），去掉空白
+    return re.sub(r"\s+", "", match.group(1)) if match else ""
+
 
 class PDFParser(BaseParser):
     """PDF文档解析器"""
@@ -73,9 +93,10 @@ class PDFParser(BaseParser):
             logger.debug(f"PDF内容为空: {file_path.name}")
             return []
 
-        # 爬虫给出的 title 通常就是文件名（如 AB8EAC68...256DF5.pdf），
-        # 展示给用户没有意义，改用正文中第一行有意义的内容
-        if self._is_filename_title(title, file_path):
+        # 爬虫给出的标题通常来自网页，对 PDF 附件常常退化成文件名
+        # （如 AB8EAC68...256DF5.pdf）或发文字号（如 中矿委〔2022〕24 号），
+        # 展示给用户都没有意义，改用正文中推断的标题
+        if self._is_unusable_title(title, file_path):
             title = self._guess_title_from_text(full_text) or title
 
         doc_id = self._generate_doc_id(source_url, file_hash)
@@ -100,11 +121,13 @@ class PDFParser(BaseParser):
         return [doc]
 
     @staticmethod
-    def _is_filename_title(title: str, file_path: Path) -> bool:
-        """判断标题是否只是文件名"""
+    def _is_unusable_title(title: str, file_path: Path) -> bool:
+        """判断爬虫给出的标题是否不可用（文件名或发文字号）"""
         if not title:
             return True
-        return title == file_path.name or title.lower().endswith(".pdf")
+        if title == file_path.name or title.lower().endswith(".pdf"):
+            return True
+        return _is_doc_number(title)
 
     @staticmethod
     def _guess_title_from_text(text: str) -> str:
@@ -112,7 +135,8 @@ class PDFParser(BaseParser):
 
         学校官网的公文版式很固定：第1行是发文机关标志（如「中国矿业大学文件」），
         第2行是发文字号（如「中矿委〔2022〕24 号」），第3行起才是真正的标题，
-        且标题常跨多行、以「各…：」这类主送机关行结束。非公文版式则首行即标题。
+        且标题常跨多行、以「各…：」这类主送机关行结束。有的 PDF 发文机关标志是
+        图片，提取不到，首行直接就是发文字号。非公文版式则首行即标题。
         """
         lines = []
         for raw in text.splitlines():
@@ -130,14 +154,29 @@ class PDFParser(BaseParser):
         if not lines:
             return ""
 
-        if not lines[0].endswith("文件"):
+        # 发文机关标志与发文字号都排在正文最前面，但都不是标题，跳过
+        start = 0
+        while start < len(lines) and (
+            lines[start].endswith("文件") or _is_doc_number(lines[start])
+        ):
+            start += 1
+
+        if start >= len(lines):
             return lines[0][:60]
 
-        # 公文版式：跳过发文机关标志与发文字号，拼接到主送机关行为止
+        # 跳过版头后紧接着就是主送机关，说明这份公文没有单独排版标题行，
+        # 改从正文第一个《》里取
+        if lines[start].endswith(("：", ":")):
+            return _first_quoted_name(text) or lines[0][:60]
+
+        if start == 0:
+            return lines[0][:60]
+
+        # 公文版式：拼接到主送机关行为止
         picked = []
-        for line in lines[1:]:
-            if len(line) <= 20 and line.endswith("号") and re.search(r"\d{4}", line):
-                continue  # 发文字号
+        for line in lines[start:]:
+            if _is_doc_number(line):
+                continue
             if line.endswith(("：", ":")):
                 break  # 主送机关，标题到此结束
             picked.append(line)

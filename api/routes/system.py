@@ -4,7 +4,7 @@
 - GET /api/stats   - 索引统计
 - GET /api/health  - 健康检查
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from loguru import logger
 
@@ -37,8 +37,10 @@ async def stats(
             site_distribution=vs_stats.get("site_distribution", {}),
         )
     except Exception as e:
-        logger.error(f"获取统计失败: {e}")
-        return StatsResponse()
+        # 不能返回全 0 的 StatsResponse：那会让「索引坏了」和「索引为空」
+        # 在调用方看起来完全一样，把故障伪装成正常状态
+        logger.exception(f"获取统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计失败: {e}")
 
 
 @router.get("/health", response_model=HealthResponse)

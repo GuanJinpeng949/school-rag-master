@@ -116,6 +116,10 @@ class RuntimeSettings(BaseSettings):
     device: str = Field(default="auto", alias="DEVICE")
     # 是否使用FP16半精度推理（仅在CUDA设备上生效，可明显降低显存占用）
     use_fp16: bool = Field(default=True, alias="USE_FP16")
+    # 重排序设备：auto=跟随DEVICE，也可显式指定 cpu / cuda
+    # 默认cpu：嵌入模型与重排序模型同时驻留GPU时，4GB显存（GTX1650）不够用，
+    # 会在加载重排序模型时直接段错误（原生崩溃，Python层拦不住）
+    rerank_device: str = Field(default="cpu", alias="RERANK_DEVICE")
 
     class Config:
         env_file = ".env"
@@ -134,6 +138,14 @@ def resolve_inference_device() -> str:
     except Exception:
         pass
     return "cpu"
+
+
+def resolve_rerank_device() -> str:
+    """解析重排序设备：RERANK_DEVICE=auto 时跟随 DEVICE"""
+    device = (settings.runtime.rerank_device or "cpu").strip()
+    if device.lower() == "auto":
+        return resolve_inference_device()
+    return device
 
 
 def resolve_use_fp16(device: str) -> bool:
