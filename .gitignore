@@ -53,3 +53,6 @@ models_cache/
 
 # 杂项
 *.lnk
+
+# 本地面试笔记（个人记录，不进远程仓库）
+problem&solution.md
