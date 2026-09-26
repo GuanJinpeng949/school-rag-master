@@ -52,7 +52,7 @@ async def health(
 
     try:
         vs_stats = vs.get_stats()
-        chroma_ok = vs_stats["total_chunks"] >= 0
+        chroma_ok = vs_stats["total_chunks"] > 0
     except Exception:
         pass
 

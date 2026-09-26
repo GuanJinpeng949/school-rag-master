@@ -20,6 +20,13 @@ from loguru import logger
 from parser.base import BaseParser, ContentType, ParsedDocument
 
 
+# 公文标题的常见结尾词，用于判断跨行标题是否已经结束
+_TITLE_SUFFIXES = (
+    "的通知", "的通报", "的意见", "的批复", "的决定", "的函",
+    "通知", "办法", "规定", "细则", "方案", "规则", "制度",
+)
+
+
 class PDFParser(BaseParser):
     """PDF文档解析器"""
 
@@ -66,6 +73,11 @@ class PDFParser(BaseParser):
             logger.debug(f"PDF内容为空: {file_path.name}")
             return []
 
+        # 爬虫给出的 title 通常就是文件名（如 AB8EAC68...256DF5.pdf），
+        # 展示给用户没有意义，改用正文中第一行有意义的内容
+        if self._is_filename_title(title, file_path):
+            title = self._guess_title_from_text(full_text) or title
+
         doc_id = self._generate_doc_id(source_url, file_hash)
 
         doc = ParsedDocument(
@@ -86,6 +98,60 @@ class PDFParser(BaseParser):
         )
 
         return [doc]
+
+    @staticmethod
+    def _is_filename_title(title: str, file_path: Path) -> bool:
+        """判断标题是否只是文件名"""
+        if not title:
+            return True
+        return title == file_path.name or title.lower().endswith(".pdf")
+
+    @staticmethod
+    def _guess_title_from_text(text: str) -> str:
+        """从正文中推断标题
+
+        学校官网的公文版式很固定：第1行是发文机关标志（如「中国矿业大学文件」），
+        第2行是发文字号（如「中矿委〔2022〕24 号」），第3行起才是真正的标题，
+        且标题常跨多行、以「各…：」这类主送机关行结束。非公文版式则首行即标题。
+        """
+        lines = []
+        for raw in text.splitlines():
+            line = re.sub(r"\s+", " ", raw).strip()
+            if len(line) < 6:
+                continue
+            if re.fullmatch(r"[—–\-\s]*\d+[—–\-\s]*", line):       # 页码，如 "- 2 -"
+                continue
+            if "阅知" in line or "注意保管" in line:                # 保密提示
+                continue
+            lines.append(line)
+            if len(lines) >= 8:
+                break
+
+        if not lines:
+            return ""
+
+        if not lines[0].endswith("文件"):
+            return lines[0][:60]
+
+        # 公文版式：跳过发文机关标志与发文字号，拼接到主送机关行为止
+        picked = []
+        for line in lines[1:]:
+            if len(line) <= 20 and line.endswith("号") and re.search(r"\d{4}", line):
+                continue  # 发文字号
+            if line.endswith(("：", ":")):
+                break  # 主送机关，标题到此结束
+            picked.append(line)
+            joined = "".join(picked)
+            if joined.endswith(_TITLE_SUFFIXES) or len(joined) >= 30:
+                break
+
+        title = "".join(picked)
+        # 标题与正文被排版在同一行时，截到标题结束处
+        for suffix in _TITLE_SUFFIXES:
+            idx = title.find(suffix)
+            if idx >= 6:
+                return title[:idx + len(suffix)][:60]
+        return (title or lines[0])[:60]
 
     def _get_page_count(self, file_path: Path) -> int:
         """获取PDF页数"""

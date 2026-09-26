@@ -28,6 +28,7 @@ from indexer.chunker import TextChunker, Chunk
 from indexer.embedder import Embedder
 from indexer.vector_store import VectorStore
 from indexer.metadata_store import MetadataStore
+from indexer.bm25_search import BM25_INDEX_DIR
 from parser.base import ParsedDocument, ContentType
 
 
@@ -106,6 +107,13 @@ def build_index(docs: list[ParsedDocument], chunk_size: int = 1024,
         conn.execute("DELETE FROM documents")
         conn.commit()
         logger.info("已清空SQLite元数据")
+
+        # 删除BM25索引：它按 chunk_id 指向旧向量库，不删除会被检索器直接加载，
+        # 导致命中已失效的分块（检索器不会自动识别索引是否过期）
+        bm25_path = BM25_INDEX_DIR / "bm25_index.pkl"
+        if bm25_path.exists():
+            bm25_path.unlink()
+            logger.info("已删除旧BM25索引")
 
     # Step 1: 分块
     logger.info(f"开始分块: {len(docs)} 个文档...")

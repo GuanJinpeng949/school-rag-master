@@ -9,7 +9,7 @@
                                      ├── Retriever (BGE嵌入 + Chroma向量检索)
                                      └── Generator (DeepSeek LLM + Prompt模板)
                                               ↑
-数据管线: Scrapy爬虫 → HTML/PDF解析 → 文本分块 → BGE嵌入 → Chroma+SQLite
+数据管线: requests爬虫 → HTML/PDF解析 → 文本分块 → BGE嵌入 → Chroma+SQLite
 ```
 
 ## 快速开始
@@ -88,7 +88,7 @@ python scripts/integration_test.py --skip-llm --skip-browser
 ```
 school-rag/
 ├── config/          # 全局配置 + 站点爬取规则
-├── crawler/         # Scrapy + Playwright 爬虫
+├── crawler/         # requests 爬虫
 ├── parser/          # HTML/PDF/OCR 解析器
 ├── indexer/         # 文本分块 + BGE嵌入 + Chroma/SQLite 存储
 ├── rag/             # 检索器 + LLM生成器 + RAG Chain
@@ -126,20 +126,22 @@ curl -X POST http://localhost:8000/api/search \
 | Embedding | BGE-large-zh-v1.5（本地运行） |
 | 向量数据库 | Chroma |
 | 元数据库 | SQLite |
-| 爬虫 | Scrapy + Playwright |
+| 爬虫 | requests（Playwright 仅用于集成测试的浏览器 E2E） |
 | 文档解析 | BeautifulSoup4 + PyMuPDF + pdfplumber |
 | 前端 | Vue3 + Vite + TypeScript |
 | HTTP客户端 | Axios |
 
-## 集成测试结果
+## 索引现状
 
-```
-30 项测试全部通过：
-  配置与环境: 3/3 ✅
-  数据层:     4/4 ✅ (257 HTML, 45 PDF, 1240文档, 1928分块)
-  解析层:     3/3 ✅ (HTML/PDF解析器, 路由器)
-  索引层:     4/4 ✅ (BGE 1024维, Chroma 1928块, 检索正常)
-  RAG层:      4/4 ✅ (纯检索+LLM生成, 来源溯源)
-  API层:      8/8 ✅ (健康/统计/搜索/建议/前端/CORS)
-  浏览器E2E:  4/4 ✅ (页面加载/搜索框/搜索/fetch)
-```
+最近一次全量构建（`scripts/parse.py` → `scripts/index_all.py --rebuild`）：
+
+| 指标 | 数值 |
+|------|------|
+| 文档数 | 771（HTML 726 / PDF 45） |
+| 分块数 | 1874 |
+| 正文总字数 | 1,354,811 |
+| 向量维度 | 1024（BGE-large-zh-v1.5，GPU + FP16） |
+| Chroma 分块数 | 1874 |
+| 检索链路 | 向量 + BM25 → RRF 融合 → Cross-Encoder 重排序 |
+
+集成测试见「快速开始」第 6 步。
